@@ -1,0 +1,2520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>肺智云析 - 胸部多疾病智能筛查系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1e88e5;
+            --primary-light: #e3f2fd;
+            --primary-dark: #1565C0;
+            --secondary-color: #f5f5f5;
+            --text-color: #333;
+            --border-color: #e0e0e0;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --hover-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+            --sidebar-width: 5%;
+            --main-width: 95%;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+         body {
+        background-image: url('../static/images/background/ai.png');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        margin: 0;
+        padding: 0;
+        font-family: 'Microsoft YaHei', sans-serif;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .ai-assistant-container {
+        background-color: rgba(255, 255, 255, 0.85);
+        height: 100vh;
+        width: 100%;
+    }
+        
+        /* 整体布局 */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+        
+        /* 左侧栏样式 */
+        .sidebar {
+
+
+             width: 15%;  /* 直接设置固定百分比 */
+            height: 100%;
+            background: linear-gradient(180deg, #e6f2ff 0%, #c8e1ff 100%);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .sidebar-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #1976D2, #64B5F6);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            box-shadow: 0 4px 8px rgba(25, 118, 210, 0.2);
+        }
+        
+        .sidebar-logo i {
+            color: white;
+            font-size: 20px;
+        }
+        
+        .sidebar-title {
+            font-weight: 600;
+            color: var(--primary-dark);
+            font-size: 18px;
+        }
+        
+        .sidebar-menu {
+            padding: 20px 0;
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-item.active {
+            background-color: rgba(25, 118, 210, 0.1);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+        
+        .menu-item:hover {
+            background-color: rgba(25, 118, 210, 0.05);
+        }
+        
+        .menu-item i {
+            margin-right: 12px;
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .chat-history {
+            margin-top: 10px;
+            padding: 0 10px;
+        }
+        
+        .history-item {
+            padding: 10px 15px;
+            margin: 5px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            color: #555;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .history-item:hover {
+            background-color: rgba(25, 118, 210, 0.08);
+        }
+        
+        .history-item.active {
+            background-color: rgba(25, 118, 210, 0.12);
+            color: var(--primary-color);
+        }
+        
+        .sidebar-footer {
+            padding: 15px 20px;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .footer-item {
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+        
+        .footer-item:hover {
+            color: var(--primary-color);
+        }
+        
+        .footer-item i {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        
+        /* 主操作区样式 */
+        .main-content {
+            width: var(--main-width);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            position: relative;
+        }
+        
+        .main-header {
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            background-color: white;
+        }
+        
+        .new-chat-btn {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .new-chat-btn:hover {
+            background-color: #d0e7fc;
+        }
+        
+        .new-chat-btn i {
+            margin-right: 8px;
+        }
+        
+        .search-container {
+            position: relative;
+            width: 300px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 8px 15px 8px 40px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        .search-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+        
+        .main-body {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .welcome-title {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .welcome-subtitle {
+            font-size: 16px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .refresh-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            margin-left: 10px;
+            font-size: 16px;
+        }
+        
+        /* 功能模块展示区 */
+        .features-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        /* 效率工具 */
+        .tools-section {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .tool-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--hover-shadow);
+        }
+        
+        .tool-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .tool-icon.blue {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+        }
+        
+        .tool-icon.green {
+            background: linear-gradient(135deg, #4CAF50, #2E7D32);
+        }
+        
+        .tool-icon.orange {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+        }
+        
+        .tool-icon.purple {
+            background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+        }
+        
+        .tool-info h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .tool-info p {
+            font-size: 13px;
+            color: #666;
+            margin: 0;
+        }
+        
+        /* 精选智能体 */
+        .agents-section {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .agent-cards {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .agent-card {
+            flex: 1;
+            background: linear-gradient(135deg, #e6f2ff, #d0e7fc);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .agent-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--hover-shadow);
+        }
+        
+        .agent-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .agent-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1976D2, #64B5F6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .agent-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .agent-description {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .agent-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            background-color: rgba(25, 118, 210, 0.1);
+            color: var(--primary-color);
+            border-radius: 20px;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+        
+        /* 肺部报告一键生成 */
+        .report-section {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .report-card {
+            background: linear-gradient(135deg, #f0f7ff, #e6f2ff);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .report-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--hover-shadow);
+        }
+        
+        .report-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+        }
+        
+        .report-description {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            flex: 1;
+        }
+        
+        .report-illustration {
+            width: 100%;
+            height: 120px;
+            background-image: url('https://img.freepik.com/free-vector/doctor-examining-patient-with-stethoscope_74855-7535.jpg');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+        
+        .generate-btn {
+            background: linear-gradient(135deg, #1976D2, #64B5F6);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        .generate-btn:hover {
+            background: linear-gradient(135deg, #1565C0, #42A5F5);
+            transform: translateY(-2px);
+        }
+        
+        .generate-btn i {
+            margin-right: 8px;
+        }
+        
+        /* 底部功能栏 */
+        .main-footer {
+            padding: 15px 30px;
+            border-top: 1px solid var(--border-color);
+            background-color: white;
+        }
+        
+        .function-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        
+        .function-btn {
+            padding: 8px 15px;
+            border-radius: 20px;
+            background-color: #f5f5f5;
+            color: #555;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .function-btn:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .function-btn i {
+            margin-right: 8px;
+        }
+        
+        .input-container {
+            display: flex;
+            align-items: center;
+            background-color: #f5f5f5;
+            border-radius: 24px;
+            padding: 5px 5px 5px 20px;
+            margin-bottom: 10px;
+        }
+        
+        .input-field {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            padding: 10px 0;
+            font-size: 16px;
+        }
+        
+        .send-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .send-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .disclaimer {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            padding: 10px 0;
+        }
+        
+        /* 聊天界面样式 */
+        .chat-interface {
+            display: none; /* 默认隐藏，点击新建对话后显示 */
+            flex-direction: column;
+            height: 100%;
+        }
+        .chat-area {
+        background-image: url('../static/images/background/ai.png');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        background-blend-mode: overlay;
+        background-color: rgba(255, 255, 255, 0.85);
+    }
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .message {
+        background-color: rgba(255, 255, 255, 0.9);
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 15px;
+        backdrop-filter: blur(2px);
+    }
+         .user-message {
+        background-color: rgba(227, 242, 253, 0.9); /* Light blue with transparency */
+    }
+
+    .ai-message {
+        background-color: rgba(245, 245, 245, 0.9); /* Light gray with transparency */
+    }
+        .message.user {
+            margin-left: auto;
+        }
+        
+        .message-content {
+            padding: 15px;
+            border-radius: 18px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .message.user .message-content {
+            background-color: var(--primary-light);
+            color: #333;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .message.assistant .message-content {
+            background-color: #f5f5f5;
+            color: #333;
+            border-bottom-left-radius: 5px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 1200px) {
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .agent-cards {
+                flex-direction: column;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .features-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 250px;
+            }
+            
+            .main-content {
+                width: calc(100% - 250px);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -250px;
+                z-index: 1000;
+                transition: all 0.3s;
+            }
+            
+            .sidebar.active {
+                left: 0;
+            }
+            
+            .main-content {
+                width: 100%;
+            }
+            
+            .function-bar {
+                overflow-x: auto;
+                justify-content: flex-start;
+                gap: 10px;
+                padding-bottom: 5px;
+            }
+            
+            .function-btn {
+                flex-shrink: 0;
+            }
+        }
+        
+        /* 导航栏样式 */
+        nav {
+            display: flex;
+            justify-content: flex-end;
+            width: 100%;
+            padding: 15px 30px;
+            background-color: white;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        nav ul li {
+            margin: 0 15px;
+        }
+        
+        nav ul li a {
+            display: block;
+            padding: 8px 0;
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        nav ul li a:hover {
+            color: var(--primary-color);
+        }
+        
+        nav ul li a.active {
+            color: var(--primary-color);
+        }
+        
+        nav ul li a::before {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary-color);
+            transition: all 0.3s;
+        }
+        
+        nav ul li a:hover::before,
+        nav ul li a.active::before {
+            width: 100%;
+        }
+        
+        /* 添加导航图标 */
+        nav ul li a::before {
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            margin-right: 8px;
+        }
+        
+        nav ul li:nth-child(1) a::before {
+            content: "\f015"; /* 首页图标 */
+        }
+        
+        nav ul li:nth-child(2) a::before {
+            content: "\f03e"; /* 肺维视界图标 */
+        }
+        
+        nav ul li:nth-child(3) a::before {
+            content: "\f21e"; /* 肺康e管家图标 */
+        }
+        
+        nav ul li:nth-child(4) a::before {
+            content: "\f0c0"; /* 肺悦智联图标 */
+        }
+        
+        nav ul li:nth-child(5) a::before {
+            content: "\f075"; /* 肺智云析图标 */
+        }
+
+    </style>
+
+    <!-- 添加CSS样式 -->
+<style>
+    .discovery-content {
+        flex: 1;
+        padding: 15px;
+        overflow-y: auto;
+    }
+
+    .knowledge-base h4 {
+        color: var(--primary-dark);
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .knowledge-categories {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .category-card {
+        background-color: white;
+        border-radius: 10px;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .category-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        background-color: var(--primary-light);
+    }
+
+    .category-card i {
+        font-size: 24px;
+        color: var(--primary-color);
+        margin-bottom: 8px;
+    }
+
+    .category-card span {
+        font-size: 14px;
+        color: #555;
+    }
+
+    .knowledge-items {
+        margin-top: 10px;
+    }
+
+    .back-btn {
+        background: none;
+        border: none;
+        color: var(--primary-color);
+        cursor: pointer;
+        margin-bottom: 15px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+    }
+
+    .back-btn i {
+        margin-right: 5px;
+    }
+
+    .category-title {
+        color: var(--primary-dark);
+        margin-bottom: 15px;
+    }
+
+    .items-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .knowledge-item {
+        background-color: white;
+        border-radius: 8px;
+        padding: 12px 15px;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .knowledge-item:hover {
+        background-color: var(--primary-light);
+    }
+
+    .knowledge-item h6 {
+        margin: 0 0 5px 0;
+        color: #333;
+    }
+
+    .knowledge-item p {
+        margin: 0;
+        font-size: 13px;
+        color: #666;
+    }
+</style>
+
+    <style>
+        /* 我创建的样式 */
+.my-creations-content {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.creations-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+
+.creations-header h4 {
+    color: var(--primary-dark);
+    margin: 0;
+}
+
+.new-creation-btn {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.new-creation-btn i {
+    margin-right: 5px;
+}
+
+.creations-tabs {
+    display: flex;
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tab {
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #666;
+    position: relative;
+}
+
+.tab.active {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.tab.active::after {
+    content: "";
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--primary-color);
+}
+
+.tab-content {
+    display: none;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* 收藏夹样式 */
+.search-creations {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.search-creations input {
+    width: 100%;
+    padding: 8px 15px 8px 35px;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    outline: none;
+    font-size: 14px;
+}
+
+.search-creations i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+}
+
+.saved-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.saved-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.saved-item:hover {
+    background-color: var(--primary-light);
+}
+
+.item-icon {
+    width: 40px;
+    height: 40px;
+    background-color: var(--primary-light);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    color: var(--primary-color);
+}
+
+.item-info {
+    flex: 1;
+}
+
+.item-info h5 {
+    margin: 0 0 5px 0;
+    font-size: 15px;
+    color: #333;
+}
+
+.item-info p {
+    margin: 0;
+    font-size: 12px;
+    color: #999;
+}
+
+.item-actions {
+    color: #999;
+    padding: 5px;
+}
+
+/* 我的工具样式 */
+.tools-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.tool-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.tool-icon {
+    width: 40px;
+    height: 40px;
+    background-color: #e8f5e9;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    color: #4caf50;
+}
+
+.tool-info {
+    flex: 1;
+}
+
+.tool-info h5 {
+    margin: 0 0 5px 0;
+    font-size: 15px;
+    color: #333;
+}
+
+.tool-info p {
+    margin: 0;
+    font-size: 12px;
+    color: #999;
+}
+
+.tool-status .badge {
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    background-color: #e0e0e0;
+    color: #666;
+}
+
+.tool-status .badge.active {
+    background-color: #e8f5e9;
+    color: #4caf50;
+}
+
+.add-tool-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.add-tool-btn i {
+    margin-right: 8px;
+}
+
+/* 我的模板样式 */
+.templates-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.template-card {
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.template-preview {
+    height: 100px;
+    background-color: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    font-size: 32px;
+}
+
+.template-info {
+    padding: 10px;
+}
+
+.template-info h5 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: #333;
+}
+
+.template-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.template-actions button {
+    flex: 1;
+    padding: 5px;
+    font-size: 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-use {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+}
+
+.btn-edit {
+    background-color: #f5f5f5;
+    color: #666;
+}
+
+.create-template-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.create-template-btn i {
+    margin-right: 8px;
+}
+    </style>
+
+    <style>.input-area textarea {
+    padding: 8px 12px;  /* 基础内边距 */
+    line-height: 1.4;
+    transform: translateY(-2px); /* 向上微调2像素 */
+}</style>
+</head>
+<body>
+    <div class="ai-assistant-container">
+        <!-- 左侧栏 -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="../static/images/logo.png" alt="肺智云析">
+                    <span>肺智云析</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-menu">
+                <div class="menu-item active">
+                    <i class="fas fa-comment-dots"></i>
+                    <span>对话</span>
+                </div>
+                <!-- 修改左侧菜单中的发现部分 -->
+<div class="menu-item" id="discovery-menu">
+    <i class="fas fa-compass"></i>
+    <span>发现</span>
+</div>
+
+<!-- 在sidebar-menu下方添加发现内容区域 -->
+<div class="discovery-content" style="display: none;">
+    <div class="knowledge-base">
+        <h4>肺部健康知识库</h4>
+        <div class="knowledge-categories">
+            <div class="category-card" data-category="diseases">
+                <i class="fas fa-lungs"></i>
+                <span>肺部疾病</span>
+            </div>
+            <div class="category-card" data-category="symptoms">
+                <i class="fas fa-thermometer-half"></i>
+                <span>症状识别</span>
+            </div>
+            <div class="category-card" data-category="prevention">
+                <i class="fas fa-shield-virus"></i>
+                <span>预防措施</span>
+            </div>
+            <div class="category-card" data-category="treatment">
+                <i class="fas fa-heartbeat"></i>
+                <span>治疗方法</span>
+            </div>
+        </div>
+
+        <div class="knowledge-items" style="display: none;">
+            <button class="back-btn"><i class="fas fa-arrow-left"></i> 返回分类</button>
+            <h5 class="category-title"></h5>
+            <div class="items-list">
+                <!-- 内容将通过JavaScript动态加载 -->
+            </div>
+        </div>
+    </div>
+</div>
+                <div class="menu-item" id="my-creations-menu">
+    <i class="fas fa-folder"></i>
+    <span>我创建的</span>
+</div>
+
+<!-- 在我创建的菜单下方添加内容区域 -->
+<div class="my-creations-content" style="display: none;">
+    <div class="creations-header">
+        <h4>我的创作空间</h4>
+        <button class="new-creation-btn">
+            <i class="fas fa-plus"></i> 新建
+        </button>
+    </div>
+
+    <div class="creations-tabs">
+        <div class="tab active" data-tab="saved">收藏夹</div>
+        <div class="tab" data-tab="tools">我的工具</div>
+        <div class="tab" data-tab="templates">我的模板</div>
+    </div>
+
+    <div class="creations-body">
+        <!-- 收藏夹内容 -->
+        <div class="tab-content active" data-tab="saved">
+            <div class="search-creations">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="搜索我的收藏">
+            </div>
+
+            <div class="saved-items">
+                <div class="saved-item">
+                    <div class="item-icon">
+                        <i class="fas fa-file-medical"></i>
+                    </div>
+                    <div class="item-info">
+                        <h5>肺部CT分析模板</h5>
+                        <p>最后修改: 2023-06-15</p>
+                    </div>
+                    <div class="item-actions">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </div>
+                </div>
+
+                <div class="saved-item">
+                    <div class="item-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="item-info">
+                        <h5>肺功能监测仪表板</h5>
+                        <p>最后修改: 2023-05-28</p>
+                    </div>
+                    <div class="item-actions">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </div>
+                </div>
+
+                <div class="saved-item">
+                    <div class="item-icon">
+                        <i class="fas fa-book-medical"></i>
+                    </div>
+                    <div class="item-info">
+                        <h5>患者教育手册</h5>
+                        <p>最后修改: 2023-04-10</p>
+                    </div>
+                    <div class="item-actions">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 我的工具内容 -->
+        <div class="tab-content" data-tab="tools">
+            <div class="tools-list">
+                <div class="tool-item">
+                    <div class="tool-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div class="tool-info">
+                        <h5>肺结节风险评估器</h5>
+                        <p>自定义的结节恶性概率计算工具</p>
+                    </div>
+                    <div class="tool-status">
+                        <span class="badge active">已启用</span>
+                    </div>
+                </div>
+
+                <div class="tool-item">
+                    <div class="tool-icon">
+                        <i class="fas fa-ruler-combined"></i>
+                    </div>
+                    <div class="tool-info">
+                        <h5>CT测量工具</h5>
+                        <p>快速测量肺部病灶尺寸</p>
+                    </div>
+                    <div class="tool-status">
+                        <span class="badge">已禁用</span>
+                    </div>
+                </div>
+
+                <div class="tool-item">
+                    <div class="tool-icon">
+                        <i class="fas fa-prescription-bottle-alt"></i>
+                    </div>
+                    <div class="tool-info">
+                        <h5>药物剂量计算器</h5>
+                        <p>根据体重计算抗生素剂量</p>
+                    </div>
+                    <div class="tool-status">
+                        <span class="badge active">已启用</span>
+                    </div>
+                </div>
+            </div>
+
+            <button class="add-tool-btn">
+                <i class="fas fa-plus-circle"></i> 添加新工具
+            </button>
+        </div>
+
+        <!-- 我的模板内容 -->
+        <div class="tab-content" data-tab="templates">
+            <div class="templates-grid">
+                <div class="template-card">
+                    <div class="template-preview">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="template-info">
+                        <h5>标准CT报告</h5>
+                        <div class="template-actions">
+                            <button class="btn-use">使用</button>
+                            <button class="btn-edit">编辑</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="template-card">
+                    <div class="template-preview">
+                        <i class="fas fa-procedures"></i>
+                    </div>
+                    <div class="template-info">
+                        <h5>术后随访记录</h5>
+                        <div class="template-actions">
+                            <button class="btn-use">使用</button>
+                            <button class="btn-edit">编辑</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="template-card">
+                    <div class="template-preview">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <div class="template-info">
+                        <h5>会诊申请单</h5>
+                        <div class="template-actions">
+                            <button class="btn-use">使用</button>
+                            <button class="btn-edit">编辑</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="create-template-btn">
+                <i class="fas fa-plus-circle"></i> 创建新模板
+            </button>
+        </div>
+    </div>
+</div>
+            </div>
+            
+            <div class="chat-history">
+                <div class="history-title">历史对话</div>
+                <div class="history-item">
+                    <i class="fas fa-history"></i>
+                    <span>肺炎有哪些常见症状？</span>
+                </div>
+                <div class="history-item">
+                    <i class="fas fa-history"></i>
+                    <span>如何预防肺部疾病？</span>
+                </div>
+                <div class="history-item">
+                    <i class="fas fa-history"></i>
+                    <span>肺结节是否都是恶性的？</span>
+                </div>
+                <div class="history-item">
+                    <i class="fas fa-history"></i>
+                    <span>胸部CT检查的注意事项</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    <span>管理对话记录</span>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-ellipsis-h"></i>
+                    <span>更多功能</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 主操作区 -->
+        <div class="main-content">
+            <div class="main-header">
+                <button class="new-chat-btn">
+                    <i class="fas fa-plus"></i> 新建对话
+                </button>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="搜索对话内容">
+                </div>
+            </div>
+            
+            <div class="welcome-section">
+                <h1>我是小析，你的实用 AI 助手</h1>
+                <p>我可以帮你做这些事情，<span class="refresh-suggestions">换一换</span></p>
+                
+                <!-- 功能模块展示 -->
+                <div class="feature-section">
+                    <div class="feature-row">
+                        <!-- 效率工具 -->
+                        <div class="feature-group">
+                            <div class="feature-card">
+                                <div class="feature-icon">
+                                    <i class="fas fa-clipboard"></i>
+                                </div>
+                                <div class="feature-info">
+                                    <h3>实时记录</h3>
+                                    <p>记录医疗诊断过程</p>
+                                </div>
+                            </div>
+                            
+                            <div class="feature-card">
+                                <div class="feature-icon">
+                                    <i class="fas fa-search-plus"></i>
+                                </div>
+                                <div class="feature-info">
+                                    <h3>案例分析</h3>
+                                    <p>分析相似病例</p>
+                                </div>
+                            </div>
+                            
+                            <div class="feature-card">
+                                <div class="feature-icon">
+                                    <i class="fas fa-heartbeat"></i>
+                                </div>
+                                <div class="feature-info">
+                                    <h3>治疗方法</h3>
+                                    <p>推荐适合的治疗方案</p>
+                                </div>
+                            </div>
+                            
+                            <div class="feature-card">
+                                <div class="feature-icon">
+                                    <i class="fas fa-sticky-note"></i>
+                                </div>
+                                <div class="feature-info">
+                                    <h3>AI 笔记</h3>
+                                    <p>智能整理医疗笔记</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 精选智能体 -->
+                        <div class="feature-group">
+                            <div class="ai-agent">
+                                <div class="agent-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <div class="agent-info">
+                                    <h3>AI 分析</h3>
+                                    <p>深度分析肺部CT图像，提供专业诊断建议</p>
+                                </div>
+                            </div>
+                            
+                            <div class="ai-agent">
+                                <div class="agent-icon">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="agent-info">
+                                    <h3>YOU XIAOXI</h3>
+                                    <p>智能问答助手，解答肺部健康相关问题</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 肺部报告一键生成 -->
+{#                        <div class="feature-group">#}
+{#                            <div class="report-generator">#}
+{#                                <div class="report-image">#}
+{#                                    <img src="../static/images/lung-report.png" alt="肺部报告">#}
+{#                                </div>#}
+{#                                <div class="report-info">#}
+{#                                    <h3>肺部报告一键生成</h3>#}
+{#                                    <p>上传CT图像，快速生成专业诊断报告</p>#}
+{#                                    <button class="generate-btn">一键生成</button>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 聊天区域 -->
+            <div class="chat-area" style="display: none;">
+                <div class="chat-messages">
+                    <!-- 消息内容会动态添加 -->
+                </div>
+            </div>
+            
+            <!-- 底部功能栏 -->
+            <div class="bottom-toolbar">
+                <div class="toolbar-buttons">
+                    <button class="toolbar-btn">
+                        <i class="fas fa-brain"></i>
+                        <span>AI分析</span>
+                    </button>
+{#                    <button class="toolbar-btn">#}
+{#                        <i class="fas fa-magic"></i>#}
+{#                        <span></span>#}
+{#                    </button>#}
+                    <button class="toolbar-btn">
+                        <i class="fas fa-globe"></i>
+                        <span>联网搜索</span>
+                    </button>
+{#                    <button class="toolbar-btn">#}
+{#                        <i class="fas fa-pen-fancy"></i>#}
+{#                        <span>创作</span>#}
+{#                    </button>#}
+{#                    <button class="toolbar-btn">#}
+{#                        <i class="fas fa-terminal"></i>#}
+{#                        <span>指令中心</span>#}
+{#                    </button>#}
+                </div>
+                
+                <div class="input-area">
+                    <textarea placeholder="最好的小析"></textarea>
+                    <button class="send-btn">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                
+                <div class="disclaimer">
+                    服务生成的所有内容均由人工智能模型生成，其生成内容的准确性和完整性无法保证，不代表我们的态度或观点
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化聊天历史记录
+            let chatHistoryData = [];
+            
+            // 添加聊天历史记录函数
+            function addChatHistory(userMessage, aiResponse) {
+                // 创建新的历史记录项
+                const historyItem = {
+                    id: Date.now(),
+                    userMessage: userMessage,
+                    aiResponse: aiResponse,
+                    timestamp: new Date().toLocaleString()
+                };
+                
+                // 添加到历史记录数组
+                chatHistoryData.unshift(historyItem);
+                
+                // 限制历史记录数量
+                if (chatHistoryData.length > 20) {
+                    chatHistoryData.pop();
+                }
+                
+                // 更新历史记录显示
+                updateChatHistoryDisplay();
+            }
+            
+            // 更新聊天历史记录显示
+            function updateChatHistoryDisplay() {
+                const historyContainer = document.querySelector('.chat-history');
+                if (!historyContainer) return;
+                
+                // 清空现有历史记录
+                historyContainer.innerHTML = '<div class="history-title">聊天历史</div>';
+                
+                // 添加历史记录项
+                chatHistoryData.forEach(item => {
+                    const historyElement = document.createElement('div');
+                    historyElement.className = 'history-item';
+                    historyElement.textContent = item.userMessage.length > 25 ? 
+                                               item.userMessage.substring(0, 25) + '...' : 
+                                               item.userMessage;
+                    historyElement.dataset.id = item.id;
+                    
+                    // 点击历史记录项加载对话
+                    historyElement.addEventListener('click', function() {
+                        // 显示聊天区域，隐藏欢迎区域
+                        document.querySelector('.welcome-section').style.display = 'none';
+                        document.querySelector('.chat-area').style.display = 'block';
+                        
+                        // 清空聊天区域
+                        const chatMessages = document.querySelector('.chat-messages');
+                        chatMessages.innerHTML = '';
+                        
+                        // 添加用户消息
+                        const userMessage = document.createElement('div');
+                        userMessage.className = 'message user-message';
+                        userMessage.innerHTML = `
+                            <div class="message-content">${item.userMessage}</div>
+                        `;
+                        chatMessages.appendChild(userMessage);
+                        
+                        // 添加AI回复
+                        const aiMessage = document.createElement('div');
+                        aiMessage.className = 'message ai-message';
+                        aiMessage.innerHTML = `
+                            <div class="message-avatar">
+                                <img src="../static/images/logo.png" alt="AI">
+                            </div>
+                            <div class="message-content">
+                                ${item.aiResponse}
+                            </div>
+                        `;
+                        chatMessages.appendChild(aiMessage);
+                        
+                        // 滚动到底部
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    });
+                    
+                    historyContainer.appendChild(historyElement);
+                });
+            }
+            
+            // 添加样式
+            const style = document.createElement('style');
+            style.textContent = `
+                /* 全局样式 */
+                body, html {
+                    margin: 0;
+                    padding: 0;
+                    font-family: 'Microsoft YaHei', sans-serif;
+                    height: 100%;
+                    overflow: hidden;
+                }
+                
+                .ai-assistant-container {
+                    display: flex;
+                    height: 100vh;
+                    width: 100%;
+                }
+                
+                /* 左侧栏样式 */
+                .sidebar {
+                    width: 20%;
+                    background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+                    display: flex;
+                    flex-direction: column;
+                    color: #333;
+                    height: 100%;
+                    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+                }
+                
+                .sidebar-header {
+                    padding: 20px;
+                    border-bottom: 1px solid rgba(0,0,0,0.1);
+                }
+                
+                .logo {
+                    display: flex;
+                    align-items: center;
+                    font-weight: bold;
+                    font-size: 1.2rem;
+                }
+                
+                .logo img {
+                    width: 30px;
+                    height: 30px;
+                    margin-right: 10px;
+                }
+                
+                .sidebar-menu {
+                    padding: 15px 0;
+                }
+                
+                .menu-item {
+                    padding: 12px 20px;
+                    display: flex;
+                    align-items: center;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                }
+                
+                .menu-item:hover {
+                    background-color: rgba(255,255,255,0.5);
+                }
+                
+                .menu-item.active {
+                    background-color: rgba(255,255,255,0.7);
+                    font-weight: bold;
+                }
+                
+                .menu-item i {
+                    margin-right: 10px;
+                    font-size: 1.1rem;
+                    width: 20px;
+                    text-align: center;
+                }
+                
+                .chat-history {
+                    flex: 1;
+                    overflow-y: auto;
+                    padding: 0 10px;
+                }
+                
+                .history-title {
+                    padding: 10px;
+                    font-weight: bold;
+                    color: #555;
+                    font-size: 0.9rem;
+                }
+                
+                .history-item {
+                    padding: 10px;
+                    margin: 5px 0;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    font-size: 0.9rem;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+                
+                .history-item:hover {
+                    background-color: rgba(255,255,255,0.5);
+                }
+                
+                .history-item i {
+                    margin-right: 8px;
+                    color: #1976D2;
+                }
+                
+                .sidebar-footer {
+                    padding: 15px 0;
+                    border-top: 1px solid rgba(0,0,0,0.1);
+                }
+                
+                /* 主内容区样式 */
+                .main-content {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                    background-color: #fff;
+                    height: 100%;
+                    overflow: hidden;
+                }
+                
+                .main-header {
+                    padding: 15px 20px;
+                    display: flex;
+                    align-items: center;
+                    border-bottom: 1px solid #eee;
+                }
+                
+                .new-chat-btn {
+                    background-color: #E3F2FD;
+                    color: #1976D2;
+                    border: none;
+                    padding: 8px 15px;
+                    border-radius: 20px;
+                    cursor: pointer;
+                    font-weight: 500;
+                    display: flex;
+                    align-items: center;
+                    transition: all 0.3s;
+                }
+                
+                .new-chat-btn:hover {
+                    background-color: #BBDEFB;
+                }
+                
+                .new-chat-btn i {
+                    margin-right: 5px;
+                }
+                
+                .search-box {
+                    margin-left: 20px;
+                    flex: 1;
+                    max-width: 400px;
+                    position: relative;
+                }
+                
+                .search-box input {
+                    width: 100%;
+                    padding: 8px 15px 8px 35px;
+                    border: 1px solid #ddd;
+                    border-radius: 20px;
+                    outline: none;
+                }
+                
+                .search-box i {
+                    position: absolute;
+                    left: 12px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: #777;
+                }
+                
+                /* 欢迎区域样式 */
+                .welcome-section {
+                    flex: 1;
+                    padding: 40px;
+                    overflow-y: auto;
+                }
+                
+                .welcome-section h1 {
+                    font-size: 2rem;
+                    color: #333;
+                    margin-bottom: 10px;
+                    text-align: center;
+                }
+                
+                .welcome-section p {
+                    color: #666;
+                    text-align: center;
+                    margin-bottom: 30px;
+                }
+                
+                .refresh-suggestions {
+                    color: #1976D2;
+                    cursor: pointer;
+                    text-decoration: underline;
+                }
+                
+                /* 功能模块样式 */
+                .feature-section {
+                    max-width: 1200px;
+                    margin: 0 auto;
+                }
+                
+                .feature-row {
+                    display: flex;
+                    gap: 20px;
+                    flex-wrap: wrap;
+                }
+                
+                .feature-group {
+                    flex: 1;
+                    min-width: 300px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 15px;
+                }
+                
+                .feature-card {
+                    background-color: #f8f9fa;
+                    border-radius: 12px;
+                    padding: 15px;
+                    display: flex;
+                    align-items: center;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                }
+                
+                .feature-card:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                }
+                
+                .feature-icon {
+                    width: 40px;
+                    height: 40px;
+                    background-color: #E3F2FD;
+                    border-radius: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-right: 15px;
+                    color: #1976D2;
+                }
+                
+                .feature-info h3 {
+                    font-size: 1rem;
+                    margin: 0 0 5px 0;
+                    color: #333;
+                }
+                
+                .feature-info p {
+                    font-size: 0.85rem;
+                    margin: 0;
+                    color: #666;
+                    text-align: left;
+                }
+                
+                /* 精选智能体样式 */
+                .ai-agent {
+                    background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+                    border-radius: 12px;
+                    padding: 20px;
+                    display: flex;
+                    align-items: center;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                }
+                
+                .ai-agent:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                }
+                
+                .agent-icon {
+                    width: 50px;
+                    height: 50px;
+                    background-color: #1976D2;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-right: 15px;
+                    color: white;
+                    font-size: 1.2rem;
+                }
+                
+                .agent-info h3 {
+                    font-size: 1.1rem;
+                    margin: 0 0 5px 0;
+                    color: #333;
+                }
+                
+                .agent-info p {
+                    font-size: 0.85rem;
+                    margin: 0;
+                    color: #444;
+                    text-align: left;
+                }
+                
+                /* 肺部报告生成器样式 */
+                .report-generator {
+                    background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+                    border-radius: 12px;
+                    padding: 20px;
+                    display: flex;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                    height: 100%;
+                }
+                
+                .report-generator:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                }
+                
+                .report-image {
+                    width: 100px;
+                    margin-right: 15px;
+                    display: flex;
+                    align-items: center;
+                }
+                
+                .report-image img {
+                    width: 100%;
+                    height: auto;
+                    border-radius: 8px;
+                }
+                
+                .report-info {
+                    flex: 1;
+                }
+                
+                .report-info h3 {
+                    font-size: 1.1rem;
+                    margin: 0 0 10px 0;
+                    color: #2E7D32;
+                }
+                
+                .report-info p {
+                    font-size: 0.85rem;
+                    margin: 0 0 15px 0;
+                    color: #444;
+                    text-align: left;
+                }
+                
+                .generate-btn {
+                    background-color: #4CAF50;
+                    color: white;
+                    border: none;
+                    padding: 8px 15px;
+                    border-radius: 20px;
+                    cursor: pointer;
+                    font-weight: 500;
+                    transition: all 0.3s;
+                }
+                
+                .generate-btn:hover {
+                    background-color: #388E3C;
+                }
+                
+                /* 聊天区域样式 */
+                .chat-area {
+                    flex: 1;
+                    overflow-y: auto;
+                    padding: 20px;
+                }
+                
+                /* 底部工具栏样式 */
+                .bottom-toolbar {
+                    border-top: 1px solid #eee;
+                    padding: 15px 20px;
+                }
+                
+                .toolbar-buttons {
+                    display: flex;
+                    gap: 10px;
+                    margin-bottom: 15px;
+                    flex-wrap: wrap;
+                }
+                
+                .toolbar-btn {
+                    background-color: #f8f9fa;
+                    border: 1px solid #ddd;
+                    border-radius: 20px;
+                    padding: 6px 12px;
+                    display: flex;
+                    align-items: center;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                    font-size: 0.9rem;
+                }
+                
+                .toolbar-btn:hover {
+                    background-color: #e9ecef;
+                }
+                
+                .toolbar-btn i {
+                    margin-right: 5px;
+                    font-size: 0.9rem;
+                }
+                
+                .input-area {
+                    display: flex;
+                    align-items: center;
+                    background-color: #f8f9fa;
+                    border-radius: 20px;
+                    padding: 5px;
+                    margin-bottom: 10px;
+                }
+                
+                .input-area textarea {
+                    flex: 1;
+                    border: none;
+                    background: transparent;
+                    padding: 10px 15px;
+                    resize: none;
+                    height: 24px;
+                    max-height: 120px;
+                    outline: none;
+                    font-family: inherit;
+                }
+                
+                .send-btn {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    background-color: #1976D2;
+                    color: white;
+                    border: none;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: all 0.3s;
+                }
+                
+                .send-btn:hover {
+                    background-color: #1565C0;
+                }
+                
+                .disclaimer {
+                    font-size: 0.8rem;
+                    color: #999;
+                    text-align: center;
+                    margin-top: 10px;
+                }
+                
+                /* 响应式设计 */
+                @media (max-width: 992px) {
+                    .sidebar {
+                        width: 250px;
+                    }
+                    
+                    .feature-row {
+                        flex-direction: column;
+                    }
+                    
+                    .feature-group {
+                        min-width: 100%;
+                    }
+                }
+                
+                @media (max-width: 768px) {
+                    .ai-assistant-container {
+                        flex-direction: column;
+                    }
+                    
+                    .sidebar {
+                        width: 100%;
+                        height: auto;
+                        max-height: 200px;
+                    }
+                    
+                    .chat-history {
+                        display: none;
+                    }
+                    
+                    .sidebar-footer {
+                        display: none;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // 新建对话按钮点击事件
+            document.querySelector('.new-chat-btn').addEventListener('click', function() {
+                document.querySelector('.welcome-section').style.display = 'none';
+                document.querySelector('.chat-area').style.display = 'block';
+            });
+            
+            // DeepSeek API配置
+            const DEEPSEEK_API_KEY = 'sk-dfd1a181348847669aaf8b7f6678e922';
+            const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions';
+            
+            // 添加CORS代理，如果API调用出现跨域问题，可以取消注释下面这行并使用代理URL
+            // const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
+            // const API_ENDPOINT = PROXY_URL + DEEPSEEK_API_URL;
+            
+            // 创建发送消息的函数
+            function sendMessage() {
+                const textarea = document.querySelector('.input-area textarea');
+                const message = textarea.value.trim();
+                
+                if (message) {
+                    // 显示聊天区域，隐藏欢迎区域
+                    document.querySelector('.welcome-section').style.display = 'none';
+                    document.querySelector('.chat-area').style.display = 'block';
+                    
+                    // 添加用户消息
+                    const chatMessages = document.querySelector('.chat-messages');
+                    const userMessage = document.createElement('div');
+                    userMessage.className = 'message user-message';
+                    userMessage.innerHTML = `
+                        <div class="message-content">${message}</div>
+                    `;
+                    chatMessages.appendChild(userMessage);
+                    
+                    // 清空输入框
+                    textarea.value = '';
+                    
+                    // 添加AI正在输入的提示消息
+                    const aiMessage = document.createElement('div');
+                    aiMessage.className = 'message ai-message';
+                    aiMessage.innerHTML = `
+                        <div class="message-avatar">
+                            <img src="../static/images/logo.png" alt="AI">
+                        </div>
+                        <div class="message-content">
+                            我正在分析您的问题，请稍候...
+                        </div>
+                    `;
+                    chatMessages.appendChild(aiMessage);
+                    
+                    // 滚动到底部
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    
+                    // 调用DeepSeek API获取回复
+                    fetch(DEEPSEEK_API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                        },
+                        body: JSON.stringify({
+                            model: 'deepseek-chat',
+                            messages: [
+                                {
+                                    role: 'system',
+                                    content: '你是一个专业的医疗助手，专注于肺部疾病的咨询和解答。请提供准确、专业的回答，并在必要时提醒用户咨询专业医生。'
+                                },
+                                {
+                                    role: 'user',
+                                    content: message
+                                }
+                            ],
+                            temperature: 0.7,
+                            max_tokens: 1500
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // 获取AI回复内容
+                        const aiResponse = data.choices && data.choices[0] && data.choices[0].message ? 
+                                          data.choices[0].message.content : 
+                                          '抱歉，我无法处理您的请求，请稍后再试。';
+                        
+                        // 更新AI消息内容
+                        aiMessage.innerHTML = `
+                            <div class="message-avatar">
+                                <img src="../static/images/logo.png" alt="AI">
+                            </div>
+                            <div class="message-content">
+                                ${aiResponse}
+                            </div>
+                        `;
+                        
+                        // 添加到聊天历史记录
+                        addChatHistory(message, aiResponse);
+                        
+                        // 滚动到底部
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    })
+                    .catch(error => {
+                        console.error('API调用出错:', error);
+                        
+                        // 更新AI消息为错误提示
+                        aiMessage.innerHTML = `
+                            <div class="message-avatar">
+                                <img src="../static/images/logo.png" alt="AI">
+                            </div>
+                            <div class="message-content">
+                                抱歉，发生了一些错误，请稍后再试。错误信息: ${error.message}
+                            </div>
+                        `;
+                        
+                        // 滚动到底部
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    });
+                }
+            }
+            
+            // 发送按钮点击事件
+            document.querySelector('.send-btn').addEventListener('click', sendMessage);
+            
+            // 添加键盘事件，按Enter键发送消息
+            document.querySelector('.input-area textarea').addEventListener('keydown', function(event) {
+                // 按Enter键发送消息，按Shift+Enter换行
+                if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault(); // 阻止默认的换行行为
+                    sendMessage();
+                }
+            });
+            
+            // 添加消息样式
+            const messageStyle = document.createElement('style');
+            messageStyle.textContent = `
+                .message {
+                    margin-bottom: 20px;
+                    display: flex;
+                }
+                
+                .user-message {
+                    justify-content: flex-end;
+                }
+                
+                .ai-message {
+                    justify-content: flex-start;
+                }
+                
+                .message-avatar {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    margin-right: 10px;
+                }
+                
+                .message-avatar img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+                
+                .message-content {
+                    max-width: 70%;
+                    padding: 12px 16px;
+                    border-radius: 18px;
+                    font-size: 0.95rem;
+                    line-height: 1.5;
+                }
+                
+                .user-message .message-content {
+                    background-color: #E3F2FD;
+                    color: #333;
+                    border-bottom-right-radius: 5px;
+                }
+                
+                .ai-message .message-content {
+                    background-color: #f5f5f5;
+                    color: #333;
+                    border-bottom-left-radius: 5px;
+                }
+            `;
+            document.head.appendChild(messageStyle);
+            
+            // 换一换功能
+            document.querySelector('.refresh-suggestions').addEventListener('click', function() {
+                alert('已更新推荐功能');
+            });
+        });
+    </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 知识库数据
+        const knowledgeData = {
+            diseases: [
+                { title: "肺炎", description: "了解肺炎的病因、症状和诊断方法" },
+                { title: "慢性阻塞性肺疾病(COPD)", description: "COPD的预防和管理策略" },
+                { title: "肺结核", description: "肺结核的传播途径和治疗方法" },
+                { title: "肺癌", description: "肺癌的早期症状和筛查建议" }
+            ],
+            symptoms: [
+                { title: "咳嗽", description: "不同类型咳嗽的可能原因" },
+                { title: "呼吸困难", description: "呼吸困难的常见病因" },
+                { title: "胸痛", description: "肺部相关胸痛的特征" },
+                { title: "咳血", description: "咳血的严重程度评估" }
+            ],
+            prevention: [
+                { title: "戒烟指南", description: "有效戒烟的方法和技巧" },
+                { title: "空气污染防护", description: "如何减少空气污染对肺部的影响" },
+                { title: "呼吸锻炼", description: "改善肺功能的呼吸练习" },
+                { title: "疫苗接种", description: "保护肺部的推荐疫苗" }
+            ],
+            treatment: [
+                { title: "药物治疗", description: "常见肺部疾病的药物选择" },
+                { title: "物理治疗", description: "改善呼吸功能的物理疗法" },
+                { title: "手术治疗", description: "肺部手术的适应症和风险" },
+                { title: "康复计划", description: "肺部疾病后的康复建议" }
+            ]
+        };
+
+        // 发现菜单点击事件
+        document.getElementById('discovery-menu').addEventListener('click', function() {
+            document.querySelector('.discovery-content').style.display = 'block';
+            document.querySelector('.chat-history').style.display = 'none';
+
+            // 移除其他菜单的active状态
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // 添加当前菜单的active状态
+            this.classList.add('active');
+        });
+
+        // 分类卡片点击事件
+        document.querySelectorAll('.category-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const category = this.dataset.category;
+                const categoryTitle = this.querySelector('span').textContent;
+
+                // 显示知识项列表
+                document.querySelector('.knowledge-categories').style.display = 'none';
+                document.querySelector('.knowledge-items').style.display = 'block';
+                document.querySelector('.category-title').textContent = categoryTitle;
+
+                // 加载知识项
+                const itemsList = document.querySelector('.items-list');
+                itemsList.innerHTML = '';
+
+                knowledgeData[category].forEach(item => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'knowledge-item';
+                    itemElement.innerHTML = `
+                        <h6>${item.title}</h6>
+                        <p>${item.description}</p>
+                    `;
+                    itemsList.appendChild(itemElement);
+
+                    // 点击知识项查看详情
+                    itemElement.addEventListener('click', function() {
+                        alert(`您选择了: ${item.title}\n\n${item.description}`);
+                    });
+                });
+            });
+        });
+
+        // 返回按钮点击事件
+        document.querySelector('.back-btn').addEventListener('click', function() {
+            document.querySelector('.knowledge-categories').style.display = 'grid';
+            document.querySelector('.knowledge-items').style.display = 'none';
+        });
+    });
+</script>
+<script>// 我创建的菜单点击事件
+document.getElementById('my-creations-menu').addEventListener('click', function() {
+    const creationsContent = document.querySelector('.my-creations-content');
+    const isVisible = creationsContent.style.display === 'block';
+
+    // 切换显示状态
+    creationsContent.style.display = isVisible ? 'none' : 'block';
+    document.querySelector('.discovery-content').style.display = 'none';
+    document.querySelector('.chat-history').style.display = isVisible ? 'block' : 'none';
+
+    // 更新菜单项状态
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.classList.remove('active');
+    });
+
+    if (!isVisible) {
+        this.classList.add('active');
+    }
+});
+
+// 标签页切换功能
+document.querySelectorAll('.creations-tabs .tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        // 更新标签页状态
+        document.querySelectorAll('.creations-tabs .tab').forEach(t => {
+            t.classList.remove('active');
+        });
+        this.classList.add('active');
+
+        // 显示对应内容
+        const tabName = this.dataset.tab;
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.style.display = 'none';
+        });
+        document.querySelector(`.tab-content[data-tab="${tabName}"]`).style.display = 'block';
+    });
+});
+
+// 新建按钮功能
+document.querySelector('.new-creation-btn').addEventListener('click', function() {
+    alert('新建创作功能即将推出！');
+});
+
+// 添加工具按钮功能
+document.querySelector('.add-tool-btn').addEventListener('click', function() {
+    alert('添加新工具功能即将推出！');
+});
+
+// 创建模板按钮功能
+document.querySelector('.create-template-btn').addEventListener('click', function() {
+    alert('创建新模板功能即将推出！');
+});
+
+// 收藏项菜单功能
+document.querySelectorAll('.item-actions i').forEach(icon => {
+    icon.addEventListener('click', function(e) {
+        e.stopPropagation();
+        alert('更多操作菜单即将推出！');
+    });
+});</script>
+</body>
+</html>

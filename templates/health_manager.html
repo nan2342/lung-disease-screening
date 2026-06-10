@@ -1,0 +1,2542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>肺康e管家 - 胸部多疾病智能筛查系统</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- 引入Chart.js库 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #1e88e5;
+            --secondary-color: #5e35b1;
+            --accent-color: #43a047;
+            --warning-color: #ff9800;
+            --danger-color: #e53935;
+            --light-color: #f5f5f5;
+            --dark-color: #333;
+            --gradient-blue: linear-gradient(135deg, #1976D2 0%, #64B5F6 100%);
+            --gradient-purple: linear-gradient(135deg, #5e35b1 0%, #9575cd 100%);
+            --gradient-green: linear-gradient(135deg, #2e7d32 0%, #81c784 100%);
+            --gradient-orange: linear-gradient(135deg, #e65100 0%, #ffb74d 100%);
+            --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+        /* 确保html和body元素占据全屏高度 */
+
+        {#body {#}
+        {#    font-family: 'Microsoft YaHei', 'Noto Sans SC', sans-serif;#}
+        {#    color: var(--dark-color);#}
+        {#    background-color: #f8fafc;#}
+        {#    background-image: url('../static/images/health_mannger/background.jpg');#}
+        {#    background-size: cover;#}
+        {#    background-attachment: fixed;#}
+        {#    background-position: center;#}
+        {#    background-blend-mode: overlay;#}
+      body {
+    background-image: url('../static/images/health_mannger/background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed; /* 可选，根据需求 */
+}
+      body::before {
+    content: "";
+
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.5); /* 白色半透明层，0.5是透明度 */
+    z-index: -1; /* 确保在内容之下 */
+}
+        
+        /* 定制导航栏样式，覆盖bootstrap样式 */
+        header {
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 0;
+        }
+        
+        .navbar {
+            display: none; /* 隐藏Bootstrap导航栏 */
+        }
+        
+        nav {
+            display: flex;
+            justify-content: flex-end;
+            width: 100%;
+            padding-right: 30px;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        nav ul li {
+            margin: 0 8px;
+        }
+        
+        nav ul li a {
+            display: block;
+            padding: 15px 20px;
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        nav ul li a:hover {
+            color: #1A9AFF;
+        }
+        
+        nav ul li a.active {
+            color: #1A9AFF;
+            background-color: #F0F7FF;
+        }
+        
+        /* 添加导航图标 */
+        nav ul li a::before {
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            margin-right: 8px;
+        }
+        
+        nav ul li:nth-child(1) a::before {
+            content: "\f015"; /* 首页图标 */
+        }
+        
+        nav ul li:nth-child(2) a::before {
+            content: "\f03e"; /* 肺维视界图标 */
+        }
+        
+        nav ul li:nth-child(3) a::before {
+            content: "\f21e"; /* 肺康e管家图标 */
+        }
+        
+        nav ul li:nth-child(4) a::before {
+            content: "\f0c0"; /* 肺悦智联图标 */
+        }
+        
+        nav ul li:nth-child(5) a::before {
+            content: "\f075"; /* 肺智云析图标 */
+        }
+        
+        /* 新的样式设计 */
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-weight: 700;
+            position: relative;
+            padding-left: 15px;
+            border-left: 5px solid var(--primary-color);
+        }
+        
+        .health-banner {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0)),
+                url('../static/images/background/health_mannger.jpg');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 60px 0;
+    text-align: center;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 0 0 30px 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+}
+        
+       /* 移除原有的::before伪元素样式 */
+.health-banner::before {
+    content: none;
+}
+        
+        .health-banner h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .health-banner p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .dashboard-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: var(--card-shadow);
+            padding: 25px;
+            height: 100%;
+            transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s forwards;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .dashboard-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: var(--gradient-blue);
+        }
+        
+        .dashboard-card.risk-card::after {
+            background: var(--gradient-orange);
+        }
+        
+        .dashboard-card.success-card::after {
+            background: var(--gradient-green);
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--hover-shadow);
+        }
+        
+        .dashboard-card i {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--primary-color), #64B5F6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+        
+        .dashboard-card.risk-card i {
+            background: linear-gradient(135deg, var(--warning-color), #ffcc80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .dashboard-card.success-card i {
+            background: linear-gradient(135deg, var(--accent-color), #a5d6a7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .dashboard-card h4 {
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--dark-color);
+        }
+        
+        .chart-container {
+            height: 250px;
+            margin: 20px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        
+        .chart-placeholder {
+            background-color: #f0f7ff;
+            height: 100%;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            border: 1px dashed #ccc;
+        }
+        
+        .health-metric {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .health-metric:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .health-metric h5 {
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+        
+        .good-status {
+            color: var(--accent-color);
+        }
+        
+        .warning-status {
+            color: var(--warning-color);
+        }
+        
+        .danger-status {
+            color: var(--danger-color);
+        }
+        
+        .recommendation-card {
+            background-color: #f0f7ff;
+            border-left: 4px solid var(--primary-color);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        
+        .recommendation-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        
+        .recommendation-card h5 {
+            color: var(--primary-color);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        .recommendation-card h5 i {
+            margin-right: 10px;
+            font-size: 1.3rem;
+        }
+        
+        .appointment-card {
+            border: none;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            background-color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .appointment-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 5px;
+            background: var(--gradient-blue);
+        }
+        
+        .appointment-card:hover {
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            transform: translateX(5px);
+        }
+        
+        .appointment-date {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--gradient-blue);
+            border: none;
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-weight: 500;
+            box-shadow: 0 4px 10px rgba(25, 118, 210, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #1565C0, #42A5F5);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(25, 118, 210, 0.4);
+        }
+        
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            border-radius: 30px;
+            padding: 9px 24px;
+            font-weight: 500;
+            transition: all 0.3s;
+            background: transparent;
+        }
+        
+        .btn-outline-primary:hover {
+            background: var(--gradient-blue);
+            border-color: transparent;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(25, 118, 210, 0.3);
+        }
+        
+        .progress {
+            height: 10px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            background-color: #e9ecef;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            border-radius: 10px;
+            background-image: var(--gradient-blue);
+        }
+        
+        .progress-bar.bg-warning {
+            background-image: var(--gradient-orange);
+        }
+        
+        .progress-bar.bg-success {
+            background-image: var(--gradient-green);
+        }
+        
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            padding: 40px 0 20px;
+            margin-top: 50px;
+        }
+        
+        .footer-heading {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+        
+        .footer-link {
+            color: #ccc;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 10px;
+            transition: color 0.3s;
+        }
+        
+        .footer-link:hover {
+            color: white;
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 20px;
+            margin-top: 30px;
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        .metric-trend {
+            font-size: 0.9rem;
+            margin-left: 10px;
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 20px;
+            background-color: rgba(0,0,0,0.05);
+        }
+        
+        .metric-trend i {
+            margin-right: 5px;
+            font-size: 1rem;
+        }
+        
+        .up-trend {
+            color: var(--accent-color);
+            background-color: rgba(76, 175, 80, 0.1);
+        }
+        
+        .down-trend {
+            color: var(--danger-color);
+            background-color: rgba(244, 67, 54, 0.1);
+        }
+        
+        .health-tabs {
+            margin-bottom: 30px;
+            display: flex;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            gap: 15px;
+        }
+        
+        .health-tab {
+            padding: 12px 25px;
+            background-color: white;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+        }
+        
+        .health-tab i {
+            margin-right: 8px;
+        }
+        
+        .health-tab.active {
+            background: var(--gradient-blue);
+            color: white;
+            box-shadow: 0 5px 15px rgba(25, 118, 210, 0.3);
+        }
+        
+        .health-tab:hover:not(.active) {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .feature-card {
+            background-color: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--hover-shadow);
+        }
+        
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-blue);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            color: white;
+            font-size: 2rem;
+            box-shadow: 0 5px 15px rgba(25, 118, 210, 0.3);
+        }
+        
+        .feature-content {
+            padding: 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .feature-title {
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .feature-description {
+            color: #666;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+        
+        .health-record-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: white;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        
+        .health-record-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .record-icon {
+            width: 50px;
+            height: 50px;
+            background-color: #e3f2fd;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+        
+        .record-content {
+            flex-grow: 1;
+        }
+        
+        .record-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .record-date {
+            font-size: 0.85rem;
+            color: #888;
+        }
+        
+        .record-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f5f5f5;
+            color: #666;
+            transition: all 0.3s;
+            border: none;
+        }
+        
+        .action-btn:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .quick-action {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background-color: white;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .quick-action:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        
+        .quick-action-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-blue);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+            font-size: 1.3rem;
+        }
+        
+        .quick-action-content {
+            flex-grow: 1;
+        }
+        
+        .quick-action-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        
+        .quick-action-description {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        .health-stat-card {
+            background-color: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .health-stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 30%;
+            height: 5px;
+            background: var(--gradient-blue);
+            border-radius: 0 0 0 10px;
+        }
+        
+        .health-stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background-color: #e3f2fd;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            font-size: 1.8rem;
+        }
+        
+        .stat-title {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 5px;
+        }
+        
+        .stat-description {
+            font-size: 0.85rem;
+            color: #888;
+        }
+        
+        .reminder-card {
+            background-color: #fff3e0;
+            border-left: 4px solid var(--warning-color);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        
+        .reminder-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        
+        .reminder-card h5 {
+            color: var(--warning-color);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        .reminder-card h5 i {
+            margin-right: 10px;
+            font-size: 1.3rem;
+        }
+        
+        .reminder-date {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: rgba(255, 152, 0, 0.1);
+            border-radius: 20px;
+            color: var(--warning-color);
+            font-weight: 500;
+            margin-top: 10px;
+        }
+        
+        .health-plan-card {
+            background-color: #e8f5e9;
+            border-left: 4px solid var(--accent-color);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        
+        .health-plan-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        
+        .health-plan-card h5 {
+            color: var(--accent-color);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        .health-plan-card h5 i {
+            margin-right: 10px;
+            font-size: 1.3rem;
+        }
+        
+        .plan-progress {
+            margin-top: 15px;
+        }
+        
+        .plan-progress-text {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .plan-progress-bar {
+            height: 8px;
+            background-color: rgba(76, 175, 80, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .plan-progress-value {
+            height: 100%;
+            background: var(--gradient-green);
+            border-radius: 10px;
+        }
+    </style>
+    <style>
+/* 新增的交互卡片样式 */
+.interactive-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.interactive-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.card-details {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.detail-label {
+    color: #666;
+}
+
+.detail-value {
+    font-weight: 500;
+}
+
+.mini-chart-container {
+    position: relative;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.screening-timeline {
+    text-align: left;
+    margin: 0 auto;
+    max-width: 80%;
+}
+
+.timeline-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.timeline-item:last-child {
+    border-bottom: none;
+}
+
+.timeline-date {
+    color: #555;
+}
+
+.timeline-result, .timeline-status {
+    font-weight: 500;
+}
+
+.completed .timeline-date {
+    color: #333;
+}
+
+.upcoming .timeline-date {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.risk-recommendations {
+    list-style: none;
+    padding-left: 0;
+}
+
+.risk-recommendations li {
+    padding: 8px 0;
+    border-bottom: 1px solid #f5f5f5;
+}
+</style>
+
+    <style>
+/* 新增的疾病卡片样式 */
+.disease-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    background-color: white;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.disease-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.disease-card-header {
+    padding: 20px;
+    background: var(--gradient-blue);
+    color: white;
+}
+
+.disease-card-header h4 {
+    margin: 0;
+    font-weight: 700;
+}
+
+.disease-card-body {
+    padding: 20px;
+}
+
+.disease-info-item {
+    margin-bottom: 15px;
+}
+
+.disease-info-item h5 {
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.disease-info-item h5 i {
+    margin-right: 8px;
+    font-size: 1rem;
+}
+
+.disease-info-item p {
+    margin: 0;
+    color: #555;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.disease-tag {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: rgba(255,255,255,0.2);
+    color: white;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+</style>
+
+    <style>
+/* 健康教育资源卡片样式 */
+.education-card {
+    background-color: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.education-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.education-image {
+    height: 180px;
+    overflow: hidden;
+    position: relative;
+}
+
+.education-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.education-card:hover .education-image img {
+    transform: scale(1.05);
+}
+
+.education-tag {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(0,0,0,0.7);
+    color: white;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.education-content {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.education-title {
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--dark-color);
+    font-size: 1.1rem;
+    line-height: 1.4;
+}
+
+.education-description {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    flex-grow: 1;
+}
+
+.education-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 15px;
+}
+
+.education-actions {
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.action-btn:hover {
+    background-color: #f5f5f5;
+    color: var(--primary-color);
+}
+
+.action-btn i {
+    margin-right: 5px;
+}
+
+.liked {
+    color: var(--danger-color);
+}
+
+.comment-section {
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #eee;
+    display: none;
+}
+
+.comment-input {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.comment-input input {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    margin-right: 10px;
+}
+
+.comment-list {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.comment-item {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.comment-author {
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-bottom: 3px;
+}
+
+.comment-text {
+    font-size: 0.85rem;
+    color: #555;
+}
+
+/* 发表资源按钮样式 */
+.publish-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--gradient-blue);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 5px 15px rgba(25, 118, 210, 0.4);
+    z-index: 1000;
+    transition: all 0.3s;
+    border: none;
+}
+
+.publish-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 20px rgba(25, 118, 210, 0.5);
+}
+</style>
+
+
+<style>
+.recent-articles {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.recent-articles h6 {
+    font-size: 0.95rem;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.recent-articles h6 i {
+    margin-right: 8px;
+    font-size: 1rem;
+}
+
+.article-list {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.article-list li {
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.article-list li:last-child {
+    margin-bottom: 0;
+}
+
+.article-list a {
+    color: #333;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.article-list a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.article-date {
+    font-size: 0.75rem;
+    color: #888;
+}
+</style>
+</head>
+<body>
+        <!-- 导航栏 -->
+        <header>
+            <nav>
+                <ul>
+                    <li><a href="/">首页</a></li>
+                    <li><a href="/upload">肺维视界</a></li>
+                    <li><a href="/health_manager" class="active">肺康e管家</a></li>
+                    <li><a href="/community">肺悦智联</a></li>
+                    <li><a href="/ai_assistant">肺智云析</a></li>
+                </ul>
+            </nav>
+        </header>
+    
+        <!-- 健康管理横幅 -->
+        <section class="health-banner">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-7 text-lg-start text-center">
+                        <h1 class="display-4 fw-bold">肺康e管家</h1>
+                        <p class="lead">专业的个人肺部健康管理系统，实时监测、智能分析、私人定制健康方案</p>
+                        <div class="d-flex justify-content-lg-start justify-content-center mt-4">
+                            <button class="btn btn-primary me-3"><i class="bi bi-clipboard-plus me-2"></i>开始健康评估</button>
+                            <button class="btn btn-outline-primary"><i class="bi bi-calendar-plus me-2"></i>预约筛查</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    
+
+
+
+<!-- 风险分析模态框 -->
+<div class="modal fade" id="riskAnalysisModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">详细风险分析</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>风险因素分布</h6>
+                        <div class="chart-container" style="height: 250px;">
+                            <canvas id="detailedRiskChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>风险降低建议</h6>
+                        <ul class="risk-recommendations">
+                            <li><i class="bi bi-check-circle text-success me-2"></i>继续保持不吸烟习惯</li>
+                            <li><i class="bi bi-exclamation-triangle text-warning me-2"></i>减少空气污染暴露时间</li>
+                            <li><i class="bi bi-plus-circle text-primary me-2"></i>增加抗氧化食物摄入</li>
+                            <li><i class="bi bi-arrow-up-circle text-info me-2"></i>提高每周运动频率</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary">获取个性化建议</button>
+            </div>
+        </div>
+    </div>
+</div>
+        <!-- 主要内容 -->
+        <div class="container mb-5">
+            <!-- 健康概况 -->
+            <!-- 改进后的健康概况部分代码 -->
+<section class="mb-5">
+    <div class="section-header">
+        <h2><i class="bi bi-clipboard-data me-2"></i>健康概况</h2>
+        <div class="section-actions">
+            <button class="btn btn-sm btn-outline-primary" id="refreshHealthData"><i class="bi bi-arrow-clockwise me-1"></i>刷新数据</button>
+        </div>
+    </div>
+    <div class="row g-4">
+        <!-- 肺部健康指数卡片 - 改进版 -->
+        <div class="col-md-4">
+            <div class="dashboard-card text-center health-index-card interactive-card">
+                <div class="card-icon-wrapper">
+                    <i class="bi bi-heart-pulse"></i>
+                </div>
+                <h4>肺部健康指数</h4>
+                <div class="circular-progress">
+                    <div class="progress-ring">
+                        <div class="progress-circle" style="--progress: 86%">
+                            <div class="progress-value">86</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="metric-trend up-trend"><i class="bi bi-arrow-up-short"></i>较上次提升2%</div>
+                <p class="mt-3">您的肺部健康状况良好，继续保持！</p>
+
+                <!-- 新增的详细信息区域 -->
+                <div class="card-details collapse" id="healthIndexDetails">
+                    <div class="detail-item">
+                        <span class="detail-label">呼吸频率</span>
+                        <span class="detail-value">16次/分钟 <span class="badge bg-success">正常</span></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">血氧饱和度</span>
+                        <span class="detail-value">98% <span class="badge bg-success">优秀</span></span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">同龄人平均</span>
+                        <span class="detail-value">82 <span class="text-success">(您高于平均水平)</span></span>
+                    </div>
+                </div>
+
+                <button class="btn btn-sm btn-link mt-2" data-bs-toggle="collapse" data-bs-target="#healthIndexDetails">
+                    <i class="bi bi-chevron-down"></i> 查看详情
+                </button>
+            </div>
+        </div>
+
+        <!-- 风险指数卡片 - 改进版 -->
+        <div class="col-md-4">
+            <div class="dashboard-card text-center risk-index-card interactive-card">
+                <div class="card-icon-wrapper warning">
+                    <i class="bi bi-activity"></i>
+                </div>
+                <h4>风险指数</h4>
+                <div class="circular-progress">
+                    <div class="progress-ring">
+                        <div class="progress-circle warning" style="--progress: 38%">
+                            <div class="progress-value warning-status">38</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="metric-trend down-trend"><i class="bi bi-arrow-down-short"></i>较上次降低5%</div>
+                <p class="mt-3">肺部疾病风险处于中低水平，继续改善生活习惯。</p>
+
+                <!-- 新增的风险因素雷达图 -->
+                <div class="mini-chart-container mt-3" style="height: 150px;">
+                    <canvas id="riskFactorsChart"></canvas>
+                </div>
+
+                <button class="btn btn-sm btn-outline-warning mt-2" data-bs-toggle="modal" data-bs-target="#riskAnalysisModal">
+                    <i class="bi bi-graph-up"></i> 风险分析
+                </button>
+            </div>
+        </div>
+
+        <!-- 筛查频率卡片 - 改进版 -->
+        <div class="col-md-4">
+            <div class="dashboard-card text-center screening-card interactive-card">
+                <div class="card-icon-wrapper success">
+                    <i class="bi bi-calendar-check"></i>
+                </div>
+                <h4>筛查频率</h4>
+                <div class="screening-status">
+                    <div class="status-icon good-status">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <div class="status-text">按时</div>
+                </div>
+                <p class="mt-3">您已完成3次定期筛查，最近一次检查在15天前。</p>
+
+                <!-- 新增的筛查时间线 -->
+                <div class="screening-timeline mt-3">
+                    <div class="timeline-item completed">
+                        <div class="timeline-date">2023-06-15</div>
+                        <div class="timeline-result good-status">良好</div>
+                    </div>
+                    <div class="timeline-item completed">
+                        <div class="timeline-date">2023-03-10</div>
+                        <div class="timeline-result warning-status">轻微异常</div>
+                    </div>
+                    <div class="timeline-item completed">
+                        <div class="timeline-date">2022-12-05</div>
+                        <div class="timeline-result good-status">良好</div>
+                    </div>
+                    <div class="timeline-item upcoming">
+                        <div class="timeline-date">2023-12-15</div>
+                        <div class="timeline-status">计划中</div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 风险分析模态框 -->
+<div class="modal fade" id="riskAnalysisModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">详细风险分析</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>风险因素分布</h6>
+                        <div class="chart-container" style="height: 250px;">
+                            <canvas id="detailedRiskChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>风险降低建议</h6>
+                        <ul class="risk-recommendations">
+                            <li><i class="bi bi-check-circle text-success me-2"></i>继续保持不吸烟习惯</li>
+                            <li><i class="bi bi-exclamation-triangle text-warning me-2"></i>减少空气污染暴露时间</li>
+                            <li><i class="bi bi-plus-circle text-primary me-2"></i>增加抗氧化食物摄入</li>
+                            <li><i class="bi bi-arrow-up-circle text-info me-2"></i>提高每周运动频率</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary">获取个性化建议</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    
+            <!-- 健康建议与生活方式 -->
+            <!-- 在健康建议与生活方式部分替换为以下代码 -->
+<section class="mb-5">
+    <div class="section-header">
+        <h2><i class="bi bi-lightbulb me-2"></i>肺部疾病知识库</h2>
+        <div class="section-actions">
+            <button class="btn btn-sm btn-outline-primary" id="refreshDiseases">
+                <i class="bi bi-shuffle me-1"></i>随机刷新
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-4" id="diseaseCardsContainer">
+        <!-- 疾病卡片将通过JavaScript动态生成 -->
+    </div>
+</section>
+    
+
+           <!-- 健康教育资源 -->
+<section class="mb-5">
+    <div class="section-header d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-book me-2"></i>健康教育资源</h2>
+        <div class="section-actions">
+            <button class="btn btn-sm btn-outline-primary" id="refreshEducation">
+                <i class="bi bi-arrow-clockwise me-1"></i> 刷新资源
+            </button>
+            <a href="#" class="btn btn-sm btn-primary ms-2">
+                <i class="bi bi-collection me-1"></i> 查看全部
+            </a>
+        </div>
+    </div>
+    <div class="row g-4" id="educationResourcesContainer">
+        <!-- 资源卡片将通过JavaScript动态生成 -->
+    </div>
+</section>
+    
+
+
+        </div>
+    </div>
+    <script>
+        // 等待DOM加载完成
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始化图表
+    initCharts();
+    
+    // 初始化动画效果
+    initAnimations();
+    
+    // 初始化健康标签切换
+    initHealthTabs();
+    
+    // 初始化提醒功能
+    initReminders();
+    
+    // 初始化快捷操作
+    initQuickActions();
+});
+
+// 初始化所有图表
+function initCharts() {
+    // 肺功能趋势图
+    const lungFunctionCtx = document.getElementById('lungFunctionChart');
+    if (lungFunctionCtx) {
+        const lungFunctionChart = new Chart(lungFunctionCtx, {
+            type: 'line',
+            data: {
+                labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                datasets: [{
+                    label: '肺活量(ml)',
+                    data: [3600, 3650, 3700, 3750, 3800, 3850],
+                    borderColor: '#1976D2',
+                    backgroundColor: 'rgba(25, 118, 210, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: '一秒钟用力呼气量(%)',
+                    data: [75, 77, 79, 80, 81, 82],
+                    borderColor: '#43A047',
+                    backgroundColor: 'rgba(67, 160, 71, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+    }
+    
+    // 风险评估图
+    const riskAssessmentCtx = document.getElementById('riskAssessmentChart');
+    if (riskAssessmentCtx) {
+        const riskAssessmentChart = new Chart(riskAssessmentCtx, {
+            type: 'radar',
+            data: {
+                labels: ['肺炎', '肺结核', '肺气肿', '肺纤维化', '肺癌'],
+                datasets: [{
+                    label: '当前风险(%)',
+                    data: [15, 8, 25, 12, 5],
+                    backgroundColor: 'rgba(255, 152, 0, 0.2)',
+                    borderColor: '#FF9800',
+                    pointBackgroundColor: '#FF9800',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#FF9800'
+                }, {
+                    label: '上次检查风险(%)',
+                    data: [18, 10, 30, 15, 8],
+                    backgroundColor: 'rgba(156, 39, 176, 0.2)',
+                    borderColor: '#9C27B0',
+                    pointBackgroundColor: '#9C27B0',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#9C27B0'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: {
+                            display: true
+                        },
+                        suggestedMin: 0,
+                        suggestedMax: 40
+                    }
+                }
+            }
+        });
+    }
+    
+    // 健康指数历史图
+    const healthIndexCtx = document.getElementById('healthIndexChart');
+    if (healthIndexCtx) {
+        const healthIndexChart = new Chart(healthIndexCtx, {
+            type: 'bar',
+            data: {
+                labels: ['1月', '2月', '3月', '4月', '5月', '6月'],
+                datasets: [{
+                    label: '健康指数',
+                    data: [78, 80, 82, 83, 84, 86],
+                    backgroundColor: [
+                        'rgba(30, 136, 229, 0.7)',
+                        'rgba(30, 136, 229, 0.7)',
+                        'rgba(30, 136, 229, 0.7)',
+                        'rgba(30, 136, 229, 0.7)',
+                        'rgba(30, 136, 229, 0.7)',
+                        'rgba(67, 160, 71, 0.7)'
+                    ],
+                    borderColor: [
+                        '#1976D2',
+                        '#1976D2',
+                        '#1976D2',
+                        '#1976D2',
+                        '#1976D2',
+                        '#388E3C'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 70,
+                        max: 100
+                    }
+                }
+            }
+        });
+    }
+}
+
+// 初始化动画效果
+function initAnimations() {
+    // 为所有卡片添加延迟动画
+    const cards = document.querySelectorAll('.dashboard-card, .feature-card, .health-stat-card');
+    cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+    });
+    
+    // 为健康指标添加动画
+    const metrics = document.querySelectorAll('.health-metric');
+    metrics.forEach((metric, index) => {
+        metric.style.opacity = '0';
+        metric.style.transform = 'translateX(20px)';
+        metric.style.transition = 'all 0.5s ease';
+        metric.style.transitionDelay = `${index * 0.1 + 0.5}s`;
+        
+        setTimeout(() => {
+            metric.style.opacity = '1';
+            metric.style.transform = 'translateX(0)';
+        }, 100);
+    });
+    
+    // 为推荐卡片添加动画
+    const recommendations = document.querySelectorAll('.recommendation-card');
+    recommendations.forEach((rec, index) => {
+        rec.style.opacity = '0';
+        rec.style.transform = 'translateY(20px)';
+        rec.style.transition = 'all 0.5s ease';
+        rec.style.transitionDelay = `${index * 0.1 + 0.8}s`;
+        
+        setTimeout(() => {
+            rec.style.opacity = '1';
+            rec.style.transform = 'translateY(0)';
+        }, 100);
+    });
+}
+
+// 初始化健康标签切换
+function initHealthTabs() {
+    const tabs = document.querySelectorAll('.health-tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            // 移除所有活动标签
+            tabs.forEach(t => t.classList.remove('active'));
+            
+            // 添加当前活动标签
+            this.classList.add('active');
+            
+            // 隐藏所有内容
+            tabContents.forEach(content => {
+                content.style.display = 'none';
+            });
+            
+            // 显示当前内容
+            const target = this.getAttribute('data-target');
+            document.getElementById(target).style.display = 'block';
+        });
+    });
+    
+    // 默认显示第一个标签内容
+    if (tabs.length > 0 && tabContents.length > 0) {
+        tabs[0].classList.add('active');
+        tabContents[0].style.display = 'block';
+    }
+}
+
+// 初始化提醒功能
+function initReminders() {
+    const reminderDismissButtons = document.querySelectorAll('.reminder-dismiss');
+    
+    reminderDismissButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const reminderCard = this.closest('.reminder-card');
+            
+            // 添加淡出动画
+            reminderCard.style.opacity = '0';
+            reminderCard.style.transform = 'translateY(-20px)';
+            reminderCard.style.transition = 'all 0.3s ease';
+            
+            // 移除元素
+            setTimeout(() => {
+                reminderCard.remove();
+            }, 300);
+        });
+    });
+}
+
+// 初始化快捷操作
+function initQuickActions() {
+    const quickActions = document.querySelectorAll('.quick-action');
+    
+    quickActions.forEach(action => {
+        action.addEventListener('click', function() {
+            const actionType = this.getAttribute('data-action');
+            
+            switch(actionType) {
+                case 'schedule':
+                    showScheduleModal();
+                    break;
+                case 'report':
+                    showReportModal();
+                    break;
+                case 'consult':
+                    showConsultModal();
+                    break;
+                case 'reminder':
+                    showReminderModal();
+                    break;
+                default:
+                    console.log('未知操作类型');
+            }
+        });
+    });
+}
+
+// 显示预约筛查模态框
+function showScheduleModal() {
+    // 这里可以实现模态框逻辑
+    alert('预约筛查功能将在此实现');
+}
+
+// 显示报告查询模态框
+function showReportModal() {
+    // 这里可以实现模态框逻辑
+    alert('报告查询功能将在此实现');
+}
+
+// 显示专家咨询模态框
+function showConsultModal() {
+    // 这里可以实现模态框逻辑
+    alert('专家咨询功能将在此实现');
+}
+
+// 显示设置提醒模态框
+function showReminderModal() {
+    // 这里可以实现模态框逻辑
+    alert('设置提醒功能将在此实现');
+}
+
+// 健康数据加载函数
+function loadHealthData() {
+    // 这里可以实现从后端API加载数据的逻辑
+    console.log('加载健康数据...');
+    
+    // 模拟异步加载
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const data = {
+                lungFunction: {
+                    capacity: 3850,
+                    fev1: 82,
+                    maxVentilation: 95
+                },
+                riskIndex: 38,
+                healthIndex: 86
+            };
+            resolve(data);
+        }, 1000);
+    });
+}
+
+// 更新健康数据显示
+function updateHealthDisplay(data) {
+    // 更新肺功能数据
+    if (data.lungFunction) {
+        document.getElementById('lungCapacity').textContent = data.lungFunction.capacity;
+        document.getElementById('fev1').textContent = data.lungFunction.fev1 + '%';
+        document.getElementById('maxVentilation').textContent = data.lungFunction.maxVentilation + '%';
+    }
+    
+    // 更新风险指数
+    if (data.riskIndex) {
+        document.getElementById('riskIndex').textContent = data.riskIndex;
+        document.querySelector('.risk-progress').style.width = data.riskIndex + '%';
+    }
+    
+    // 更新健康指数
+    if (data.healthIndex) {
+        document.getElementById('healthIndex').textContent = data.healthIndex;
+        document.querySelector('.health-progress').style.width = data.healthIndex + '%';
+    }
+}
+
+// 导出PDF报告
+function exportPdfReport() {
+    // 这里可以实现导出PDF的逻辑
+    console.log('导出PDF报告...');
+    alert('PDF报告导出功能将在此实现');
+}
+
+// 分享健康报告
+function shareHealthReport() {
+    // 这里可以实现分享功能
+    console.log('分享健康报告...');
+    alert('分享健康报告功能将在此实现');
+}
+    </script>
+
+<script>
+// 新增的JavaScript交互功能
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始化小型风险因素雷达图
+    const riskFactorsCtx = document.getElementById('riskFactorsChart');
+    if (riskFactorsCtx) {
+        new Chart(riskFactorsCtx, {
+            type: 'radar',
+            data: {
+                labels: ['吸烟', '环境', '遗传', '年龄', '职业'],
+                datasets: [{
+                    data: [10, 25, 15, 30, 20],
+                    backgroundColor: 'rgba(255, 152, 0, 0.2)',
+                    borderColor: '#FF9800',
+                    pointBackgroundColor: '#FF9800',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { display: false },
+                        suggestedMin: 0,
+                        suggestedMax: 50,
+                        ticks: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+
+    // 初始化详细风险图表
+    const detailedRiskCtx = document.getElementById('detailedRiskChart');
+    if (detailedRiskCtx) {
+        new Chart(detailedRiskCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['吸烟相关', '环境因素', '遗传因素', '年龄因素', '职业暴露'],
+                datasets: [{
+                    data: [15, 30, 10, 25, 20],
+                    backgroundColor: [
+                        '#E53935',
+                        '#FF9800',
+                        '#5E35B1',
+                        '#1E88E5',
+                        '#43A047'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.raw}%`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 卡片点击交互
+    document.querySelectorAll('.interactive-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            // 确保不是点击了卡片内的按钮或链接
+            if (!e.target.closest('button, a')) {
+                this.classList.toggle('active');
+
+                // 这里可以添加更多交互逻辑，如展开详细信息等
+                if (this.classList.contains('health-index-card')) {
+                    // 肺部健康指数卡片特定交互
+                    console.log('肺部健康指数卡片被点击');
+                }
+            }
+        });
+    });
+
+    // 刷新数据按钮
+    document.getElementById('refreshHealthData').addEventListener('click', function() {
+        // 显示加载状态
+        this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 加载中...';
+
+        // 模拟数据刷新
+        setTimeout(() => {
+            this.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i>刷新数据';
+            alert('健康数据已刷新');
+        }, 1500);
+    });
+
+    // 安排筛查按钮
+    document.getElementById('scheduleNextScreening').addEventListener('click', function() {
+        // 这里可以实现预约筛查的逻辑
+        alert('将跳转到筛查预约页面');
+    });
+});
+</script>
+
+<script>
+// 14种肺部疾病的JSON数据
+const lungDiseases = [
+    {
+        "name": "慢性阻塞性肺疾病(COPD)",
+        "definition": "一组以气流受限为特征的肺部疾病，主要包括慢性支气管炎和肺气肿。",
+        "symptoms": "慢性咳嗽、咳痰、呼吸困难，尤其在活动时加重。",
+        "treatment": "支气管扩张剂、吸入性糖皮质激素、氧疗等。",
+        "prognosis": "无法完全治愈，但通过治疗可以控制症状和延缓疾病进展。",
+        "methods": "戒烟、药物治疗、肺康复训练、接种流感和肺炎疫苗。",
+        "tag": "常见",
+        "references": "https://mbd.baidu.com/ma/s/g1ZnDM8Q."
+    },
+    {
+        "name": "哮喘",
+        "definition": "一种慢性气道炎症性疾病，导致气道高反应性和可逆性气流受限。",
+        "symptoms": "喘息、气短、胸闷和咳嗽，尤其在夜间或清晨加重。",
+        "treatment": "吸入性糖皮质激素、长效β2受体激动剂、白三烯调节剂等。",
+        "prognosis": "多数患者通过规范治疗可以良好控制，但无法根治。",
+        "methods": "避免过敏原、规范用药、定期随访、应急处理计划。",
+        "tag": "常见",
+        "references": "https://mbd.baidu.com/ma/s/g1ZnDM8Q."
+    },
+    {
+        "name": "肺炎",
+        "definition": "肺部组织的感染性炎症，可由细菌、病毒、真菌等病原体引起。",
+        "symptoms": "发热、咳嗽、咳痰、胸痛、呼吸困难和乏力。",
+        "treatment": "抗生素(细菌性)、抗病毒药物(病毒性)、对症支持治疗。",
+        "prognosis": "多数患者可完全康复，但老年人和免疫力低下者可能预后较差。",
+        "methods": "接种疫苗、增强免疫力、避免接触感染者、良好卫生习惯。",
+        "tag": "感染性",
+        "references": "https://mbd.baidu.com/ma/s/g1ZnDM8Q."
+    },
+    {
+        "name": "肺结核",
+        "definition": "由结核分枝杆菌引起的慢性传染病，主要侵犯肺部。",
+        "symptoms": "慢性咳嗽、低热、盗汗、乏力、体重下降和咯血。",
+        "treatment": "抗结核药物联合治疗(如异烟肼、利福平等)，疗程通常6个月以上。",
+        "prognosis": "规范治疗大多可治愈，但不规范治疗可能导致耐药和复发。",
+        "methods": "早期发现、规范治疗、隔离传染源、接种卡介苗。",
+        "tag": "传染性",
+        "references": "https://mbd.baidu.com/ma/s/g1ZnDM8Q."
+    },
+    {
+        "name": "肺纤维化",
+        "definition": "肺部组织异常修复导致瘢痕形成，使肺组织变硬和失去弹性。",
+        "symptoms": "进行性呼吸困难、干咳、乏力和杵状指。",
+        "treatment": "抗纤维化药物(如尼达尼布、吡非尼酮)、氧疗、肺康复。",
+        "prognosis": "疾病呈进行性发展，预后较差，中位生存期3-5年。",
+        "methods": "避免吸烟和环境污染、早期干预、肺移植评估。",
+        "tag": "间质性",
+        "references": "https://mbd.baidu.com/ma/s/g1ZnDM8Q."
+    },
+    {
+        "name": "肺癌",
+        "definition": "起源于支气管或肺泡上皮细胞的恶性肿瘤。",
+        "symptoms": "咳嗽、咯血、胸痛、声音嘶哑、体重下降和呼吸困难。",
+        "treatment": "手术切除、放疗、化疗、靶向治疗、免疫治疗等综合治疗。",
+        "prognosis": "取决于分期，早期发现手术治愈率高，晚期预后差。",
+        "methods": "戒烟、早期筛查(高危人群)、避免职业暴露、健康生活方式。",
+        "tag": "肿瘤",
+        "references": "https://mbd.baidu.com/ma/s/g1ZnDM8Q."
+    },
+    {
+        "name": "肺栓塞",
+        "definition": "肺动脉或其分支被血栓阻塞，导致肺循环障碍。",
+        "symptoms": "突发呼吸困难、胸痛、咯血、心悸和晕厥。",
+        "treatment": "抗凝治疗(肝素、华法林等)、溶栓治疗(重症)、下腔静脉滤器。",
+        "prognosis": "及时治疗预后较好，但大面积栓塞可能致命。",
+        "methods": "预防深静脉血栓、术后早期活动、抗凝预防(高危人群)。",
+        "tag": "急症",
+        "references": "https://mbd.baidu.com/ma/s/g1ZnDM8Q."
+    },
+    {
+        "name": "肺气肿",
+        "definition": "终末细支气管远端气腔异常扩大，伴有肺泡壁破坏。",
+        "symptoms": "进行性呼吸困难、活动耐力下降、桶状胸。",
+        "treatment": "支气管扩张剂、氧疗、肺减容手术(选择性病例)。",
+        "prognosis": "不可逆病变，但戒烟和规范治疗可延缓进展。",
+        "methods": "绝对戒烟、避免空气污染、肺康复锻炼、营养支持。",
+        "tag": "阻塞性",
+        "references": "https://mbd.baidu.com/ma/s/g1ZnDM8Q."
+    },
+    {
+        "name": "支气管扩张",
+        "definition": "支气管异常永久性扩张，伴有慢性感染和炎症。",
+        "symptoms": "慢性咳嗽、大量脓痰、反复咯血和呼吸困难。",
+        "treatment": "抗生素控制感染、支气管扩张剂、痰液引流、手术(局部病变)。",
+        "prognosis": "病变不可逆，但规范管理可减少急性加重和并发症。",
+        "methods": "预防感染、体位引流、接种疫苗、营养支持。",
+        "tag": "结构性",
+        "references": "https://mbd.baidu.com/ma/s/g1ZnDM8Q."
+    },
+    {
+        "name": "尘肺病",
+        "definition": "长期吸入无机粉尘引起的以肺纤维化为主要病变的职业病。",
+        "symptoms": "渐进性呼吸困难、咳嗽、胸闷和肺功能下降。",
+        "treatment": "脱离粉尘接触、对症治疗、氧疗、肺康复。",
+        "prognosis": "病变不可逆，早期脱离接触可延缓进展。",
+        "methods": "职业防护、定期体检、早期发现和干预。",
+        "tag": "职业性",
+        "references": "https://mbd.baidu.com/ma/s/g1ZnDM8Q."
+    },
+    {
+        "name": "肺结节病",
+        "definition": "原因不明的多系统肉芽肿性疾病，最常累及肺部。",
+        "symptoms": "咳嗽、呼吸困难、胸痛，部分患者无症状。",
+        "treatment": "糖皮质激素(有症状或进展病例)、免疫抑制剂。",
+        "prognosis": "多数患者可自发缓解，约20%进展为肺纤维化。",
+        "methods": "定期随访评估、监测肺外表现、避免不必要的治疗。",
+        "tag": "肉芽肿",
+        "references": "https://mbd.baidu.com/ma/s/g1ZnDM8Q."
+    },
+    {
+        "name": "过敏性肺炎",
+        "definition": "对外源性有机粉尘过敏引起的弥漫性间质性肺疾病。",
+        "symptoms": "接触抗原后4-8小时出现发热、咳嗽、呼吸困难和乏力。",
+        "treatment": "脱离抗原接触、糖皮质激素(重症病例)。",
+        "prognosis": "早期脱离接触可完全恢复，慢性暴露导致不可逆纤维化。",
+        "methods": "识别和避免过敏原、职业防护、环境控制。",
+        "tag": "过敏性",
+        "references": "https://mbd.baidu.com/ma/s/g1ZnDM8Q."
+    },
+    {
+        "name": "肺水肿",
+        "definition": "肺血管内液体渗入肺间质和肺泡，影响气体交换。",
+        "symptoms": "突发严重呼吸困难、端坐呼吸、粉红色泡沫痰和紫绀。",
+        "treatment": "氧疗、利尿剂、血管扩张剂、正性肌力药物(心源性)。",
+        "prognosis": "及时治疗预后良好，但严重病例可能致命。",
+        "methods": "控制基础疾病(如心衰)、避免诱因、限盐限水。",
+        "tag": "急症",
+        "references": "https://mbd.baidu.com/ma/s/g1ZnDM8Q."
+    },
+    {
+        "name": "睡眠呼吸暂停综合征",
+        "definition": "睡眠中反复出现呼吸暂停，导致低氧血症和睡眠片段化。",
+        "symptoms": "夜间打鼾、呼吸暂停、白天嗜睡、注意力不集中。",
+        "treatment": "持续气道正压通气(CPAP)、口腔矫治器、手术(选择性病例)。",
+        "prognosis": "规范治疗可显著改善症状和生活质量。",
+        "methods": "减重、侧卧睡眠、避免酒精和镇静剂、定期使用CPAP。",
+        "tag": "睡眠相关",
+        "references": "https://mbd.baidu.com/ma/s/g1ZnDM8Q."
+    }
+];
+
+// 随机选择6种不重复的疾病
+function getRandomDiseases(count) {
+    const shuffled = [...lungDiseases].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+}
+
+// 渲染疾病卡片
+function renderDiseaseCards(diseases) {
+    const container = document.getElementById('diseaseCardsContainer');
+    container.innerHTML = '';
+
+    diseases.forEach(disease => {
+        const col = document.createElement('div');
+        col.className = 'col-md-6 col-lg-4';
+
+        col.innerHTML = `
+            <div class="disease-card">
+                <div class="disease-card-header">
+                    <h4>${disease.name}</h4>
+                    <span class="disease-tag">${disease.tag}</span>
+                </div>
+                <div class="disease-card-body">
+                    <div class="disease-info-item">
+                        <h5><i class="bi bi-book"></i>定义</h5>
+                        <p>${disease.definition}</p>
+                    </div>
+                    <div class="disease-info-item">
+                        <h5><i class="bi bi-exclamation-triangle"></i>症状</h5>
+                        <p>${disease.symptoms}</p>
+                    </div>
+                    <div class="disease-info-item">
+                        <h5><i class="bi bi-capsule"></i>治疗</h5>
+                        <p>${disease.treatment}</p>
+                    </div>
+                    <div class="disease-info-item">
+                        <h5><i class="bi bi-graph-up"></i>预后</h5>
+                        <p>${disease.prognosis}</p>
+                    </div>
+                    <div class="disease-info-item">
+                        <h5><i class="bi bi-heart"></i>预防方法</h5>
+                        <p>${disease.methods}</p>
+                    </div>
+<div class="disease-info-item">
+                        <h5><i class="bi bi-journal-text"></i>参考</h5>
+                        <p style="white-space: pre-line; font-size: 0.8rem; color: #666;">${disease.references}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        container.appendChild(col);
+    });
+}
+
+// 初始加载和刷新功能
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始加载
+    const initialDiseases = getRandomDiseases(6);
+    renderDiseaseCards(initialDiseases);
+
+    // 刷新按钮
+    document.getElementById('refreshDiseases').addEventListener('click', function() {
+        this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 加载中...';
+
+        setTimeout(() => {
+            const newDiseases = getRandomDiseases(6);
+            renderDiseaseCards(newDiseases);
+            this.innerHTML = '<i class="bi bi-shuffle me-1"></i>随机刷新';
+        }, 500);
+    });
+});
+</script>
+
+<script>
+// 健康教育资源数据
+const healthEducationResources = [
+    {
+        "id": 1,
+        "title": "肺部健康知识：如何正确进行呼吸锻炼",
+        "description": "专业呼吸治疗师教您几种简单有效的呼吸锻炼方法，帮助改善肺功能，特别适合COPD和哮喘患者。",
+        "image": "../static/images/health_mannger/1.png",
+        "type": "文章",
+        "views": 1245,
+        "duration": "15分钟",
+        "likes": 342,
+        "recentArticles": [
+            {"title": "[1]宋媛媛.全方位举措保护肺部健康[J].家庭医药.快乐养生,2025,(03):22-23.", "date": "2023"},
+        ],
+        "comments": [
+            {"author": "张先生", "text": "这些呼吸练习真的很有帮助，我的呼吸顺畅多了！"},
+            {"author": "李女士", "text": "视频讲解非常清晰，感谢分享"}
+        ],
+        "disease": "慢性阻塞性肺疾病"
+    },
+    {
+        "id": 2,
+        "title": "慢阻肺患者的日常管理指南",
+        "description": "详细介绍慢阻肺患者如何进行自我管理，包括用药、运动和饮食等方面的专业建议。",
+        "image": "../static/images/health_mannger/2.png",
+        "type": "文章",
+        "views": 876,
+        "duration": "10分钟",
+        "likes": 215,
+        "recentArticles": [
+            {"title": "[1]何高燕.慢阻肺患者的日常管理及预防[N].甘肃科技报,2024-11-29(007).", "date": "2024"},
+        ],
+        "comments": [
+            {"author": "王先生", "text": "非常实用的指南，特别是饮食建议部分"},
+            {"author": "赵女士", "text": "希望能有更多关于氧疗的内容"}
+        ],
+        "disease": "慢性阻塞性肺疾病"
+    },
+    {
+        "id": 3,
+        "title": "肺部CT筛查：您需要知道的一切",
+        "description": "解答关于肺部CT筛查的常见问题，包括适应人群、筛查频率和注意事项等专业指导。",
+        "image": "../static/images/health_mannger/3.png",
+        "type": "指南",
+        "views": 1032,
+        "duration": "8分钟",
+        "likes": 289,
+        "recentArticles": [
+            {"title": "https://www.cn-healthcare.com/articlewm/20230117/content-1499586.html.", "date": "2023"},
+        ],
+        "comments": [
+            {"author": "刘先生", "text": "解答了我很多关于CT筛查的疑问"},
+            {"author": "陈女士", "text": "内容专业且易懂，非常有用"}
+        ],
+        "disease": "肺癌"
+    },
+    {
+        "id": 4,
+        "title": "哮喘急救措施与长期管理",
+        "description": "专业医生讲解哮喘发作时的急救措施和日常管理方法，帮助患者更好地控制病情。",
+        "image": "../static/images/health_mannger/4.png",
+        "type": "视频",
+        "views": 987,
+        "duration": "12分钟",
+        "likes": 256,
+        "recentArticles": [
+            {"title": "[1]李影,郭瑞瑞,徐娜.哮喘发作，预防急救两手抓[J].祝您健康,2025,(09):37.", "date": "2025"},
+        ],
+        "comments": [
+            {"author": "周先生", "text": "急救措施讲解很实用"},
+            {"author": "吴女士", "text": "希望能有更多关于儿童哮喘的内容"}
+        ],
+        "disease": "哮喘"
+    },
+    {
+        "id": 5,
+        "title": "肺结核的预防与治疗",
+        "description": "全面介绍肺结核的传播途径、预防措施和现代治疗方法，帮助公众正确认识这一疾病。",
+        "image": "../static/images/health_mannger/5.png",
+        "type": "文章",
+        "views": 765,
+        "duration": "9分钟",
+        "likes": 198,
+        "recentArticles": [
+            {"title": "https://www.cdstm.cn/subjects/jcnrtj/202203/t20220324_1066683.html.", "date": ""},
+        ],
+        "comments": [
+            {"author": "郑先生", "text": "消除了我对肺结核的很多误解"},
+            {"author": "孙女士", "text": "预防措施讲解得很详细"}
+        ],
+        "disease": "肺结核"
+    },
+    {
+        "id": 6,
+        "title": "肺纤维化患者的康复训练",
+        "description": "专业康复师演示适合肺纤维化患者的呼吸训练和体能锻炼方法，改善生活质量。",
+        "image": "../static/images/health_mannger/6.png",
+        "type": "视频",
+        "views": 654,
+        "duration": "18分钟",
+        "likes": 176,
+        "recentArticles": [
+            {"title": "[1]周艳,徐萌.督导家庭肺康复治疗肺纤维化的研究进展[J].中国老年学杂志,2019,39(15):3852-3855.", "date": "2019"},
+        ],
+        "comments": [
+            {"author": "林先生", "text": "训练方法很实用，坚持做有效果"},
+            {"author": "黄女士", "text": "希望能有更多针对不同阶段的训练"}
+        ],
+        "disease": "肺纤维化"
+    },
+    {
+        "id": 7,
+        "title": "戒烟指南：科学方法与辅助工具",
+        "description": "呼吸科专家分享科学戒烟方法和辅助工具，帮助吸烟者成功戒烟，保护肺部健康。",
+        "image": "../static/images/health_mannger/7.png",
+        "type": "指南",
+        "views": 1123,
+        "duration": "7分钟",
+        "likes": 432,
+        "recentArticles": [
+            {"title": "国家卫生计生委办公厅关于印发中国临床戒烟指南的通知.", "date": ""},
+        ],
+        "comments": [
+            {"author": "朱先生", "text": "这些方法帮助我成功戒烟了"},
+            {"author": "高女士", "text": "内容很实用，推荐给家人了"}
+        ],
+        "disease": "多种肺部疾病"
+    },
+    {
+        "id": 8,
+        "title": "睡眠呼吸暂停综合征的诊断与治疗",
+        "description": "详细解释睡眠呼吸暂停的病因、症状和治疗方法，包括CPAP呼吸机的使用指南。",
+        "image": "../static/images/health_mannger/8.png",
+        "type": "文章",
+        "views": 876,
+        "duration": "11分钟",
+        "likes": 234,
+        "recentArticles": [
+            {"title": "[1]王亚敏.阻塞性睡眠呼吸暂停低通气综合征的诊断及治疗进展[J].中国误诊学杂志,2021,16(03):283-284.", "date": "2021"},
+        ],
+        "comments": [
+            {"author": "徐先生", "text": "解释得很清楚，终于明白自己的问题了"},
+            {"author": "胡女士", "text": "CPAP使用指南很有帮助"}
+        ],
+        "disease": "睡眠呼吸暂停综合征"
+    },
+    {
+        "id": 9,
+        "title": "职业性肺病的防护措施",
+        "description": "针对不同职业环境，介绍有效的肺部防护措施和健康监测方法，预防职业性肺病。",
+        "image": "../static/images/health_mannger/9.png",
+        "type": "指南",
+        "views": 543,
+        "duration": "6分钟",
+        "likes": 187,
+        "recentArticles": [
+            {"title": "https://niohp.chinacdc.cn/zyyx/zyyx/201309/t20130910_87974.html.", "date": ""},
+        ],
+        "comments": [
+            {"author": "欧阳先生", "text": "对我们建筑工人很有用"},
+            {"author": "邓女士", "text": "希望能有更多行业的具体防护建议"}
+        ],
+        "disease": "尘肺病"
+    },
+    {
+        "id": 10,
+        "title": "肺部感染的家庭护理指南",
+        "description": "专业护士讲解肺部感染患者的家庭护理方法，包括体位引流、用药管理和症状监测。",
+        "image": "../static/images/health_mannger/10.png",
+        "type": "视频",
+        "views": 765,
+        "duration": "14分钟",
+        "likes": 213,
+        "recentArticles": [
+            {"title": "[1]闫淑伟.肺部感染的家庭护理和自我保健[J].中国社区医师(医学专业半月刊),2008,(01):128.", "date": "2008"},
+        ],
+        "comments": [
+            {"author": "马先生", "text": "护理方法很实用，家人恢复得很快"},
+            {"author": "谢女士", "text": "体位引流演示得很清楚"}
+        ],
+        "disease": "肺炎"
+    }
+];
+
+// 随机选择3种不重复的资源
+function getRandomResources(count) {
+    const shuffled = [...healthEducationResources].sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, count);
+}
+
+// 渲染健康教育资源卡片
+function renderResourceCards(resources) {
+    const container = document.querySelector('#educationResourcesContainer');
+    container.innerHTML = '';
+
+    resources.forEach(resource => {
+        const col = document.createElement('div');
+        col.className = 'col-md-4';
+
+        col.innerHTML = `
+            <div class="education-card">
+                <div class="education-image">
+                    <img src="${resource.image}" alt="${resource.title}">
+                    <span class="education-tag">${resource.type}</span>
+                </div>
+                <div class="education-content">
+                    <h5 class="education-title">${resource.title}</h5>
+                    <p class="education-description">${resource.description}</p>
+                     <!-- 最近文章部分 -->
+                    <div class="recent-articles">
+                        <h6><i class="bi bi-newspaper"></i> 最近文章</h6>
+                        <ul class="article-list">
+                            ${resource.recentArticles.map(article => `
+                                <li><a href="#">${article.title}</a> <span class="article-date">${article.date}</span></li>
+                            `).join('')}
+                        </ul>
+                    </div>
+<div class="education-meta">
+
+                        <span><i class="bi bi-eye"></i> ${resource.views}次浏览</span>
+                        <span><i class="bi bi-clock"></i> ${resource.duration}</span>
+                        <span><i class="bi bi-heart"></i> ${resource.likes}点赞</span>
+                    </div>
+                    <div class="education-actions">
+                        <button class="action-btn like-btn" data-id="${resource.id}">
+                            <i class="bi bi-heart${resource.liked ? '-fill' : ''}"></i> 点赞
+                        </button>
+                        <button class="action-btn comment-btn" data-id="${resource.id}">
+                            <i class="bi bi-chat-left"></i> 评论
+                        </button>
+                        <button class="action-btn share-btn" data-id="${resource.id}">
+                            <i class="bi bi-share"></i> 分享
+                        </button>
+                    </div>
+                </div>
+                <div class="comment-section" id="comments-${resource.id}">
+                    <div class="comment-input">
+                        <input type="text" placeholder="写下你的评论..." class="comment-input-field">
+                        <button class="action-btn submit-comment" data-id="${resource.id}">发送</button>
+                    </div>
+                    <div class="comment-list">
+                        ${resource.comments.map(comment => `
+                            <div class="comment-item">
+                                <div class="comment-author">${comment.author}</div>
+                                <div class="comment-text">${comment.text}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        container.appendChild(col);
+    });
+
+    // 添加事件监听器
+    addEventListeners();
+}
+
+// 添加事件监听器
+function addEventListeners() {
+    // 点赞按钮
+    document.querySelectorAll('.like-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const resourceId = parseInt(this.getAttribute('data-id'));
+            const resource = healthEducationResources.find(r => r.id === resourceId);
+
+            if (resource) {
+                if (resource.liked) {
+                    resource.likes--;
+                    resource.liked = false;
+                    this.innerHTML = '<i class="bi bi-heart"></i> 点赞';
+                } else {
+                    resource.likes++;
+                    resource.liked = true;
+                    this.innerHTML = '<i class="bi bi-heart-fill liked"></i> 点赞';
+                }
+
+                // 更新点赞数显示
+                const meta = this.closest('.education-card').querySelector('.education-meta span:nth-child(3)');
+                meta.innerHTML = `<i class="bi bi-heart${resource.liked ? '-fill' : ''}"></i> ${resource.likes}点赞`;
+            }
+        });
+    });
+
+    // 评论按钮
+    document.querySelectorAll('.comment-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const resourceId = parseInt(this.getAttribute('data-id'));
+            const commentSection = document.getElementById(`comments-${resourceId}`);
+
+            if (commentSection.style.display === 'block') {
+                commentSection.style.display = 'none';
+            } else {
+                commentSection.style.display = 'block';
+            }
+        });
+    });
+
+    // 提交评论
+    document.querySelectorAll('.submit-comment').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const resourceId = parseInt(this.getAttribute('data-id'));
+            const input = this.previousElementSibling;
+            const commentText = input.value.trim();
+
+            if (commentText) {
+                const resource = healthEducationResources.find(r => r.id === resourceId);
+                if (resource) {
+                    // 添加新评论
+                    resource.comments.push({
+                        author: "我",
+                        text: commentText
+                    });
+
+                    // 清空输入框
+                    input.value = '';
+
+                    // 重新渲染评论部分
+                    const commentList = this.closest('.comment-section').querySelector('.comment-list');
+                    commentList.innerHTML = resource.comments.map(comment => `
+                        <div class="comment-item">
+                            <div class="comment-author">${comment.author}</div>
+                            <div class="comment-text">${comment.text}</div>
+                        </div>
+                    `).join('');
+                }
+            }
+        });
+    });
+
+    // 分享按钮
+    document.querySelectorAll('.share-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const resourceId = parseInt(this.getAttribute('data-id'));
+            const resource = healthEducationResources.find(r => r.id === resourceId);
+
+            if (resource) {
+                alert(`分享"${resource.title}"到社交媒体`);
+                // 实际应用中这里可以调用社交媒体分享API
+            }
+        });
+    });
+}
+
+// 发表资源功能
+function setupPublishButton() {
+    const publishBtn = document.createElement('button');
+    publishBtn.className = 'publish-btn';
+    publishBtn.innerHTML = '<i class="bi bi-plus-lg"></i>';
+    publishBtn.title = '发表资源';
+    document.body.appendChild(publishBtn);
+
+    publishBtn.addEventListener('click', function() {
+        // 这里可以打开发表资源的模态框
+        alert('发表新资源功能将在此实现');
+    });
+}
+
+// 初始加载
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始加载3个随机资源
+    const initialResources = getRandomResources(3);
+    renderResourceCards(initialResources);
+
+    // 设置发表按钮
+    setupPublishButton();
+
+    // 刷新按钮
+    document.querySelector('#refreshEducation').addEventListener('click', function() {
+        this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 加载中...';
+
+        setTimeout(() => {
+            const newResources = getRandomResources(3);
+            renderResourceCards(newResources);
+            this.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i> 刷新资源';
+        }, 500);
+    });
+});
+</script>
+</body>
+</html>

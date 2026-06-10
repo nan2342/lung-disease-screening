@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/csdn-style.css">
+    <link rel="stylesheet" href="css/csdn-animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=PingFang+SC:wght@400;500;600&family=Microsoft+YaHei:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        body {
+            background-color: #ffffff;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        header, footer {
+            display: none; /* 隐藏头部导航，专注于登录界面 */
+        }
+        
+        .login-container {
+            max-width: 450px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.6s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: #4e6ef2;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h2 {
+            font-size: 28px;
+            color: #333333;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: #666666;
+            font-size: 16px;
+        }
+
+        .login-form .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .login-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333333;
+        }
+
+        .login-form .input-with-icon {
+            position: relative;
+        }
+
+        .login-form .input-with-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999999;
+            transition: all 0.3s ease;
+        }
+
+        .login-form .input-with-icon input {
+            padding-left: 45px;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background-color: #ffffff;
+            color: #333333;
+            box-sizing: border-box;
+        }
+
+        .login-form input:focus {
+            border-color: #4e6ef2;
+            box-shadow: 0 0 0 3px rgba(78, 110, 242, 0.1);
+            outline: none;
+        }
+
+        .login-form input:focus + i {
+            color: #4e6ef2;
+        }
+
+        .login-form .remember-me {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .login-form .remember-me input {
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .login-form .forgot-password {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        .login-form .forgot-password a {
+            color: #4e6ef2;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .login-form .forgot-password a:hover {
+            color: #2847dc;
+            text-decoration: underline;
+        }
+
+        .login-form .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: #4e6ef2;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(78, 110, 242, 0.2);
+        }
+
+        .login-form .btn-login:hover {
+            transform: translateY(-2px);
+            background: #2847dc;
+            box-shadow: 0 6px 12px rgba(78, 110, 242, 0.3);
+        }
+
+        .login-form .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .login-divider {
+            display: flex;
+            align-items: center;
+            margin: 25px 0;
+            color: #999999;
+        }
+
+        .login-divider::before,
+        .login-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background-color: #e0e0e0;
+        }
+
+        .login-divider span {
+            padding: 0 15px;
+            font-size: 14px;
+        }
+
+        .social-login {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .social-login a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: #f5f5f5;
+            color: #333333;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .social-login a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .social-login .wechat {
+            color: #07C160;
+        }
+
+        .social-login .qq {
+            color: #12B7F5;
+        }
+
+        .social-login .weibo {
+            color: #E6162D;
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666666;
+        }
+
+        .login-footer a {
+            color: #4e6ef2;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .login-footer a:hover {
+            color: #2847dc;
+            text-decoration: underline;
+        }
+
+        /* 错误提示样式 */
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        /* 动画效果 */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .shake {
+            animation: shake 0.6s;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 576px) {
+            .login-container {
+                max-width: 90%;
+                margin: 0 auto;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container animate__animated animate__fadeIn">
+        <div class="login-header">
+            <h2>欢迎回来</h2>
+            <p>登录您的账号以继续</p>
+        </div>
+        <form class="login-form" id="login-form">
+            <div class="form-group">
+                <label for="username">用户名或邮箱</label>
+                <div class="input-with-icon">
+                    <input type="text" id="username" name="username" placeholder="请输入用户名或邮箱" required>
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="error-message" id="username-error">请输入有效的用户名或邮箱</div>
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <div class="input-with-icon">
+                    <input type="password" id="password" name="password" placeholder="请输入密码" required>
+                    <i class="fas fa-lock"></i>
+                </div>
+                <div class="error-message" id="password-error">密码不能为空</div>
+            </div>
+            <div class="form-group">
+                <div class="remember-me">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">记住我</label>
+                </div>
+                <div class="forgot-password">
+                    <a href="#">忘记密码？</a>
+                </div>
+            </div>
+            <button type="submit" class="btn-login">登录</button>
+            <div class="login-divider">
+                <span>或使用社交账号登录</span>
+            </div>
+            <div class="social-login">
+                <a href="#" class="wechat"><i class="fab fa-weixin"></i></a>
+                <a href="#" class="qq"><i class="fab fa-qq"></i></a>
+                <a href="#" class="weibo"><i class="fab fa-weibo"></i></a>
+            </div>
+            <div class="login-footer">
+                还没有账号？<a href="register.html">立即注册</a>
+            </div>
+        </form>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 表单验证
+            const loginForm = document.getElementById('login-form');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const usernameError = document.getElementById('username-error');
+            const passwordError = document.getElementById('password-error');
+            
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    let isValid = true;
+                    
+                    // 验证用户名
+                    if (!usernameInput.value.trim()) {
+                        usernameError.style.display = 'block';
+                        usernameInput.classList.add('shake');
+                        isValid = false;
+                    } else {
+                        usernameError.style.display = 'none';
+                    }
+                    
+                    // 验证密码
+                    if (!passwordInput.value) {
+                        passwordError.style.display = 'block';
+                        passwordInput.classList.add('shake');
+                        isValid = false;
+                    } else {
+                        passwordError.style.display = 'none';
+                    }
+                    
+                    // 阻止表单提交如果验证失败
+                    if (!isValid) {
+                        e.preventDefault();
+                        
+                        // 移除动画类以便下次可以再次触发
+                        setTimeout(function() {
+                            usernameInput.classList.remove('shake');
+                            passwordInput.classList.remove('shake');
+                        }, 600);
+                    }
+                });
+                
+                // 输入时隐藏错误信息
+                usernameInput.addEventListener('input', function() {
+                    usernameError.style.display = 'none';
+                });
+                
+                passwordInput.addEventListener('input', function() {
+                    passwordError.style.display = 'none';
+                });
+            }
+        });
+    </script>
+
+    <script src="js/theme-toggle.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

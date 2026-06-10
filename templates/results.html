@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分析结果 - 胸部多疾病智能筛查系统</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* 整体页面设计 */
+        body {
+            position: relative;
+        }
+        
+        body::before, body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: #E6F2FF;
+            z-index: -1;
+        }
+        
+        body::before {
+            left: 15px;
+        }
+        
+        body::after {
+            right: 15px;
+        }
+        
+        /* 标题强化 */
+        .results-container h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #003366;
+            margin-bottom: 20px;
+        }
+        
+        /* 信息栏优化 */
+        .result-summary p {
+            color: #666666;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+        
+        /* 模块标题 */
+        .results-container h3 {
+            font-weight: 600;
+            color: #333333;
+            margin: 20px 0 15px 0;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        /* 内容区域布局 */
+        .results-content {
+            display: flex;
+            gap: 20px;
+            margin: 25px 0;
+        }
+        
+        /* 原始影像区域 */
+        .original-image {
+            flex: 1;
+            background-color: #F5F5F5;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .image-info p {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        
+        .image-info p::before {
+            font-family: "Font Awesome 5 Free";
+            content: "\f03e";
+            margin-right: 8px;
+            color: #555;
+        }
+        
+        .image-info p:nth-child(2)::before {
+            content: "\f1de";
+        }
+        
+        /* 疾病分析结果区域 */
+        .analysis-results {
+            flex: 1.5;
+        }
+        
+        /* 概率条容器 */
+        .disease-item {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .disease-name {
+            font-weight: 500;
+            color: #444;
+        }
+        
+        .probability-bar-container {
+            position: relative;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+        
+        .probability-bar {
+            height: 100%;
+            background-color: #1e88e5;
+            border-radius: 10px;
+            transition: width 0.8s ease;
+        }
+        
+        .probability-value {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            font-weight: 500;
+            font-size: 0.9em;
+            text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* 风险等级标签 */
+        .disease-status {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+        
+        .high-risk {
+            color: #d32f2f;
+            display: flex;
+            align-items: center;
+        }
+        
+        .high-risk::before {
+            font-family: "Font Awesome 5 Free";
+            content: "\f071";
+            font-weight: 900;
+            margin-right: 5px;
+        }
+        
+        .medium-risk {
+            color: #f57c00;
+            display: flex;
+            align-items: center;
+        }
+        
+        .medium-risk::before {
+            font-family: "Font Awesome 5 Free";
+            content: "\f06a";
+            font-weight: 900;
+            margin-right: 5px;
+        }
+        
+        .low-risk {
+            color: #388e3c;
+            display: flex;
+            align-items: center;
+        }
+        
+        .low-risk::before {
+            font-family: "Font Awesome 5 Free";
+            content: "\f05a";
+            font-weight: 900;
+            margin-right: 5px;
+        }
+        
+        /* 疾病热点图 */
+        .heatmap-container {
+            position: relative;
+            border: 2px solid #E6F2FF;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .heatmap-image-container {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .heatmap-image {
+            max-width: 100%;
+            border-radius: 4px;
+            position: relative;
+            cursor: crosshair;
+        }
+        
+        /* 热点图鼠标悬停提示 */
+        .heatmap-image:hover::after {
+            content: attr(data-info);
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            z-index: 10;
+        }
+        
+        /* 热点图图例 */
+        .heatmap-legend-container {
+            flex: 0.5;
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .heatmap-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .color-box {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            border-radius: 3px;
+        }
+        
+        .color-box.high {
+            background-color: #d32f2f;
+        }
+        
+        .color-box.medium {
+            background-color: #f57c00;
+        }
+        
+        .color-box.low {
+            background-color: #388e3c;
+        }
+        
+        /* 疾病解决方案 */
+        .disease-solution-container {
+            flex: 1.5;
+            min-width: 300px;
+            border-left: 1px solid #eaeaea;
+            padding-left: 20px;
+        }
+        
+        .disease-solution-title {
+            font-weight: 600;
+            color: #1e88e5;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .disease-solution-content {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .disease-solution-content h4 {
+            color: #d32f2f;
+            font-size: 16px;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        
+        .disease-solution-content p {
+            color: #555;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+        
+        .disease-solution-content ul {
+            padding-left: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .disease-solution-content li {
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        /* AI辅助诊断说明 */
+        .notes-container p {
+            line-height: 1.5;
+            color: #444;
+        }
+        
+        .disclaimer {
+            font-style: italic;
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #ddd;
+        }
+        
+        /* 按钮差异化 */
+        .action-buttons {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .action-buttons .btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .action-buttons .btn:first-child {
+            background-color: #1e88e5;
+            color: white;
+        }
+        
+        .action-buttons .btn:nth-child(2) {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .action-buttons .btn:last-child {
+            background-color: #CCCCCC;
+            color: #333;
+        }
+        
+        .action-buttons .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .heatmap-tooltip {
+            position: absolute;
+            display: none;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            pointer-events: none;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .heatmap-image:hover + .heatmap-tooltip {
+            display: block;
+        }
+        
+        /* 自定义疾病热点图SVG样式 */
+        .heatmap-svg {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            margin: 0 auto;
+            display: block;
+            border-radius: 8px;
+            background-color: #f8f8f8;
+        }
+        
+        .heatmap-svg-circle {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .heatmap-svg-circle:hover {
+            stroke: white;
+            stroke-width: 2px;
+            filter: brightness(1.1);
+        }
+        
+        /* 定制导航栏样式，覆盖bootstrap样式 */
+        nav * {
+    all: unset !important;
+    display: block !important;
+}
+
+nav {
+    display: flex !important;
+    justify-content: flex-end !important;
+    margin-top: -40px !important;  /* 关键修改：向上移动导航栏 */
+    padding-top: 0 !important;     /* 确保顶部无内边距 */
+}
+
+nav ul {
+    margin-right: 60px !important;  /* 新增：设置距离右侧40px */
+    display: flex !important;
+    list-style: none !important;
+    padding: 0 !important;
+
+    align-items: flex-start !important;  /* 使列表项顶部对齐 */
+}
+
+nav li {
+    margin-left: 40px !important;
+    margin-top: 0 !important;      /* 确保顶部无外边距 */
+    margin-bottom: 0 !important;   /* 确保底部无外边距 */
+}
+
+nav a {
+    color: #333 !important;
+    text-decoration: none !important;
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    line-height: 1 !important;     /* 去除行高影响 */
+    transition: color 0.3s ease !important; /* 添加平滑过渡效果 */
+    gap: 40px;
+}
+
+/* 鼠标悬停时字体变蓝 */
+nav a:hover {
+    color: rgb(26, 154, 255) !important; /* 鼠标悬停时字体颜色变为蓝色 */
+}
+        
+        /* 添加导航图标 */
+        nav ul li a::before {
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            margin-right: 8px;
+        }
+        
+        nav ul li:nth-child(1) a::before {
+            content: "\f015"; /* 首页图标 */
+        }
+        
+        nav ul li:nth-child(2) a::before {
+            content: "\f03e"; /* 肺维视界图标 */
+        }
+        
+        nav ul li:nth-child(3) a::before {
+            content: "\f21e"; /* 肺康e管家图标 */
+        }
+        
+        nav ul li:nth-child(4) a::before {
+            content: "\f0c0"; /* 肺悦智联图标 */
+        }
+        
+        nav ul li:nth-child(5) a::before {
+            content: "\f075"; /* 肺智云析图标 */
+        }
+    </style>
+
+
+</head>
+<body>
+<h1> &nbsp</h1>
+        <nav>
+            <ul>
+                <li><a href="/">首页</a></li>
+                <li><a href="/upload" class="active">肺维视界</a></li>
+                <li><a href="/health_manager">肺康e管家</a></li>
+                <li><a href="/community">肺悦智联</a></li>
+                <li><a href="/ai_assistant">肺智云析</a></li>
+            </ul>
+        </nav>
+
+
+    <main>
+        <div class="results-container">
+            <h2>分析结果</h2>
+            <div class="result-summary">
+                <p class="timestamp">分析完成时间: {{ analysis_time }}</p>
+                <p class="analysis-id">分析ID: {{ analysis_id }}</p>
+            </div>
+            
+            <div class="results-content">
+                <div class="original-image">
+                    <h3>原始影像</h3>
+                    <img id="originalImageDisplay" src="" alt="原始胸部影像">
+                    <div class="image-info">
+                        <p id="imageType">影像类型: {{ image_type }}</p>
+                        <p id="imageSize">影像尺寸: {{ image_size }}</p>
+                    </div>
+                </div>
+                
+                <div class="analysis-results">
+                    <h3>疾病筛查结果</h3>
+                    <div class="disease-probabilities">
+                        <!-- 将由JavaScript动态填充 -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="heatmap-section">
+                <h3>疾病热点图</h3>
+                <div class="heatmap-container">
+                    <div class="heatmap-image-container">
+                        <img id="heatmapDisplay" src="" alt="疾病热点图" class="heatmap-image">
+                    </div>
+                    
+                    <div class="heatmap-legend-container">
+                        <div class="heatmap-legend">
+                            <div class="legend-item">
+                                <span class="color-box high"></span>
+                                <span>高异常区域</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="color-box medium"></span>
+                                <span>中等异常区域</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="color-box low"></span>
+                                <span>低异常区域</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="disease-solution-container">
+                        <div class="disease-solution-title">高风险疾病解决方案</div>
+                        <div class="disease-solution-content" id="diseaseSolution">
+                            <!-- 将由JavaScript动态填充 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="ai-notes">
+                <h3>AI辅助诊断说明</h3>
+                <div class="notes-container">
+                    <p>{{ ai_notes }}</p>
+                    <p class="disclaimer">注意: 此结果仅供参考，不构成医疗诊断。请咨询专业医生获取正式诊断意见。</p>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="/upload" class="btn">上传新影像</a>
+                <a href="/download-report" class="btn" id="downloadPdfBtn">下载PDF报告</a>
+                <button class="btn" id="printButton">打印结果</button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 胸部多疾病智能筛查系统. 版权所有.</p>
+    </footer>
+
+   <script>
+       document.addEventListener('DOMContentLoaded', function() {
+    const printButton = document.getElementById('printButton');
+    const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+
+    printButton.addEventListener('click', function() {
+        window.print();
+    });
+
+    // 更新PDF下载按钮行为
+    downloadPdfBtn.addEventListener('click', function(e) {
+        e.preventDefault(); // 阻止默认链接行为
+
+        // 获取分析数据
+        const analysisResults = JSON.parse(localStorage.getItem('analysisResults') || '{}');
+        const analysisId = analysisResults.analysis_id || '{{ analysis_id }}';
+
+        // 将当前页面数据传递给PDF生成页面
+        localStorage.setItem('pdfData', JSON.stringify({
+            analysisId: analysisId,
+            originalImage: document.getElementById('originalImageDisplay').src,
+            diseases: analysisResults.diseases || [],
+            analysisTime: analysisResults.analysis_time || '{{ analysis_time }}',
+            imageInfo: {
+                type: analysisResults.image_type || document.getElementById('imageType').textContent.replace('影像类型: ', ''),
+                size: analysisResults.image_size || document.getElementById('imageSize').textContent.replace('影像尺寸: ', '')
+            },
+            aiNotes: analysisResults.ai_notes || document.querySelector('.notes-container p:first-child').textContent
+        }));
+
+        // 打开PDF生成页面
+        window.location.href = '/download-report';
+    });
+
+    // 从本地存储获取分析结果数据
+    const analysisResults = JSON.parse(localStorage.getItem('analysisResults') || '{}');
+    console.log('分析结果数据:', analysisResults);
+
+    // 处理原始图像和热力图
+    const originalImageElement = document.getElementById('originalImageDisplay');
+    const heatmapElement = document.getElementById('heatmapDisplay');
+
+    if (analysisResults.original_image) {
+        originalImageElement.src = analysisResults.original_image;
+    }
+
+    if (analysisResults.heatmap_image) {
+        heatmapElement.src = analysisResults.heatmap_image;
+    }
+
+    // 填充分析结果信息
+    if (analysisResults.analysis_time) {
+        const timestampElements = document.querySelectorAll('.timestamp');
+        timestampElements.forEach(el => {
+            el.textContent = '分析完成时间: ' + analysisResults.analysis_time;
+        });
+    }
+
+    if (analysisResults.analysis_id) {
+        const idElements = document.querySelectorAll('.analysis-id');
+        idElements.forEach(el => {
+            el.textContent = '分析ID: ' + analysisResults.analysis_id;
+        });
+    }
+
+    if (analysisResults.image_type) {
+        document.getElementById('imageType').textContent = '影像类型: ' + analysisResults.image_type;
+    }
+
+    if (analysisResults.image_size) {
+        document.getElementById('imageSize').textContent = '影像尺寸: ' + analysisResults.image_size;
+    }
+
+    // 填充AI诊断说明
+    if (analysisResults.ai_notes) {
+        const notesContainer = document.querySelector('.notes-container p:first-child');
+        if (notesContainer) {
+            notesContainer.textContent = analysisResults.ai_notes;
+        }
+    }
+
+    // 动态生成疾病概率内容
+    if (analysisResults.diseases && analysisResults.diseases.length > 0) {
+        const diseaseProbabilitiesContainer = document.querySelector('.disease-probabilities');
+        if (diseaseProbabilitiesContainer) {
+            // 清空现有内容
+            diseaseProbabilitiesContainer.innerHTML = '';
+
+            // 添加每种疾病
+            analysisResults.diseases.forEach(disease => {
+                const diseaseItem = document.createElement('div');
+                diseaseItem.className = 'disease-item';
+
+                // 构建疾病名称
+                const diseaseName = document.createElement('div');
+                diseaseName.className = 'disease-name';
+                diseaseName.textContent = disease.name;
+
+                // 构建概率条
+                const probabilityBarContainer = document.createElement('div');
+                probabilityBarContainer.className = 'probability-bar-container';
+
+                const probabilityBar = document.createElement('div');
+                probabilityBar.className = 'probability-bar';
+                probabilityBar.style.width = disease.probability + '%';
+                probabilityBar.style.background = disease.probability > 70 ? '#d32f2f' :
+                                               (disease.probability > 30 ? '#f57c00' : '#388e3c');
+
+                const probabilityValue = document.createElement('span');
+                probabilityValue.className = 'probability-value';
+                probabilityValue.textContent = disease.probability + '%';
+
+                probabilityBarContainer.appendChild(probabilityBar);
+                probabilityBarContainer.appendChild(probabilityValue);
+
+                // 构建风险状态
+                const diseaseStatus = document.createElement('div');
+                diseaseStatus.className = 'disease-status';
+
+                const riskSpan = document.createElement('span');
+                if (disease.probability > 70) {
+                    riskSpan.className = 'high-risk';
+                    riskSpan.textContent = '高风险';
+                } else if (disease.probability > 30) {
+                    riskSpan.className = 'medium-risk';
+                    riskSpan.textContent = '中等风险';
+                } else {
+                    riskSpan.className = 'low-risk';
+                    riskSpan.textContent = '低风险';
+                }
+
+                diseaseStatus.appendChild(riskSpan);
+
+                // 将所有元素添加到疾病项目中
+                diseaseItem.appendChild(diseaseName);
+                diseaseItem.appendChild(probabilityBarContainer);
+                diseaseItem.appendChild(diseaseStatus);
+
+                // 将疾病项目添加到容器中
+                diseaseProbabilitiesContainer.appendChild(diseaseItem);
+            });
+
+            // 找出概率最高的疾病并显示解决方案
+            const highestRiskDisease = analysisResults.diseases.reduce((prev, current) =>
+                (prev.probability > current.probability) ? prev : current
+            );
+
+            fetchDiseaseSolution(highestRiskDisease.name);
+
+            // 为每个疾病项添加点击事件，点击可以查看对应解决方案
+            document.querySelectorAll('.disease-item').forEach((item, index) => {
+                item.addEventListener('click', () => {
+                    fetchDiseaseSolution(analysisResults.diseases[index].name);
+                });
+            });
+        }
+    }
+
+    // 从嵌入的JSON数据加载疾病解决方案
+    function fetchDiseaseSolution(diseaseName) {
+        const solutionContainer = document.getElementById('diseaseSolution');
+        if (!solutionContainer) return;
+
+        try {
+            // 显示加载状态
+            solutionContainer.innerHTML = '<p>正在加载解决方案...</p>';
+
+            // 使用嵌入的JSON数据
+            const diseaseData = window.diseaseData;
+            console.log('加载的疾病数据:', diseaseData);
+
+            // 找到匹配的疾病
+            const matchedDisease = diseaseData.find(disease =>
+                diseaseName.includes(disease.名称)
+            );
+
+            // 如果没有找到匹配的疾病，使用默认内容
+            if (!matchedDisease) {
+                solutionContainer.innerHTML = `
+                    <h4>${diseaseName} 解决方案</h4>
+                    <p>目前系统中没有该疾病的详细解决方案。建议咨询专业医生获取个性化治疗建议。</p>
+                    <p>一般建议：</p>
+                    <ul>
+                        <li>定期随访检查</li>
+                        <li>保持健康生活方式</li>
+                        <li>避免吸烟和二手烟暴露</li>
+                        <li>保持适当运动和充分休息</li>
+                    </ul>
+                `;
+            } else {
+                // 构建解决方案HTML
+                let treatmentsHTML = '';
+                if (matchedDisease.治疗 && Array.isArray(matchedDisease.治疗)) {
+                    matchedDisease.治疗.forEach(item => {
+                        treatmentsHTML += `<li>${item}</li>`;
+                    });
+                }
+
+                solutionContainer.innerHTML = `
+                    <h4>${matchedDisease.名称}解决方案</h4>
+                    <p><strong>定义：</strong>${matchedDisease.定义 || '暂无定义'}</p>
+                    ${matchedDisease.症状 ? `<p><strong>常见症状：</strong>${Array.isArray(matchedDisease.症状) ? matchedDisease.症状.join("、") : matchedDisease.症状}</p>` : ''}
+                    ${treatmentsHTML ? `<p><strong>治疗方法：</strong></p><ul>${treatmentsHTML}</ul>` : ''}
+                    ${matchedDisease.治疗方法 ? `<p><strong>详细治疗说明：</strong>${matchedDisease.治疗方法}</p>` : ''}
+                    ${matchedDisease.预后 ? `<p><strong>预后：</strong>${matchedDisease.预后}</p>` : ''}
+                    <p><small>注意：以上建议仅供参考，具体治疗方案请遵医嘱。</small></p>
+                `;
+            }
+        } catch (error) {
+            console.error('加载疾病数据失败:', error);
+            solutionContainer.innerHTML = `
+                <p>无法加载疾病解决方案数据，请稍后再试或联系管理员。</p>
+                <p>错误信息: ${error.message}</p>
+            `;
+        }
+    }
+});
+   </script>
+<script>
+    window.diseaseData = [
+    {"名称": "肺炎",
+      "定义": "由细菌、病毒等病原体引起的肺部感染",
+      "症状": ["发热", "咳嗽", "咳痰"],
+      "治疗": ["止咳药", "解热镇痛/XMLSchema=ns1", "抗生素"],
+      "预后": "多数患者经过治疗不留瘢痕，可以恢复正常",
+      "治疗方法":"肺炎的治疗主要包括对抗感染和预防并发症两大方面。大多数社区获得性肺炎患者可以在家通过药物治疗康复，虽然发热、咳嗽、咳痰等症状通常会在数天到数周内缓解，但身体乏力、容易疲倦的感觉可能会持续一个月甚至更久。具体治疗方案需要根据致病菌种类、肺炎严重程度等因素来确定。常用的药物包括止咳药、退烧止痛药以及抗生素等不同类别。需要注意的是，不同病原体对应的药物选择差异很大，医生会根据检查结果进行精准用药。"
+    },
+    {
+      "名称": "气胸",
+      "定义": "气体进入胸膜腔造成的积气状态",
+      "症状": ["突然感到胸痛", "呼吸困难"],
+      "治疗": ["药物", "排气治疗", "少数患者需要手术治疗"],
+      "预后": "经过治疗，多数患者预后良好",
+      "治疗方法":"4、医生会根据气胸的类型、病因、发作次数、肺被压缩程度、病情严重程度以及是否出现并发症等情况，选择.保守治疗或手术治疗。治疗的核心目标是让肺部重新张开、消除不适症状， 并尽可能降低复发风险。多数症状较轻的患者通过保守治疗就能康复，只有少部分患者需要手术治疗。"
+    },
+    {
+      "名称": "水肿",
+      "定义": "一种病理状态，指液体从肺毛细血管异常渗透至肺间质、肺泡",
+      "病因": "可起源于肺部疾病，也可起源于肺外疾病",
+      "症状": ["呼吸困难"],
+      "预后": "ICU患者发生肺水肿可延长住院时间，影响预后",
+      "治疗方法":"肺水肿的治疗原则是及时治疗和纠正导致肺水肿的原发病因，并进行呼吸支持，改善患者氧合。"
+    },
+    {
+      "名称": "实变",
+      "定义": "肺泡腔内充满渗出物和炎症细胞，肺组织密度增加。",
+      "症状": ["咳嗽", "咳痰", "发热", "胸痛", "呼吸困难"],
+      "治疗": ["抗感染", "通气支持", "对症治疗"],
+      "预后": "取决于病因和病情严重程度，部分疾病预后较差",
+      "治疗方法":"（1）对因治疗感染性:根据病原体选择抗生素(如青霉素类、头孢类)或抗病毒药物。 非感染性: 炎症性疾病用糖皮质激素(如泼尼松a)。 肿瘤需手术、化疗或放疗。 肺水肿需利尿剂、强心药。（2）支持治疗氧疗或机械通气改善缺氧。补液维持水电解质平衡。"
+    },
+    {
+      "名称": "胸腔积液",
+      "定义": "肺部组织内液体异常积聚。",
+      "症状": ["咳嗽", "呼吸困难", "可能发热"],
+      "治疗": ["针对病因治疗", "如抗感染", "利尿等"],
+      "预后": "取决于病因和治疗及时性，及时治疗预后较好",
+      "治疗方法":"（1.）抗感染治疗:细菌感染用抗生素(如青霉素、头孢类)，病毒感染可考虑抗病毒药物。（2）减轻肺水肿:心源性:利尿剂(如呋塞米)、强心药(如地高辛)。非心源性:限制液体入量，必要时使用糖皮质激素。 （3）呼吸支持:轻者吸氧，重者需无创通气或气管插管。（4）对症处理:退热、止咳化.痰、维持水电解质平衡。"
+    },
+    {
+      "名称": "肺气肿",
+      "定义": "肺泡等损伤导致肺部异常增大的状态",
+      "症状": ["稍一活动就出现呼吸急促", "咳嗽"],
+      "治疗": ["支气管扩张剂", "激素等药物", "氧疗"],
+      "预后": "病变无法逆转，经过治疗可以延缓病变发展",
+      "治疗方法":"肺气肿造成的肺部损伤无法完全恢复，治疗的核心在于控制病情恶化、改善呼吸功能、帮助患者维持正常生活和工作能力。"
+    },
+    {
+      "名称": "纤维化",
+      "定义": "支撑肺泡的肺间质发生纤维化",
+      "症状": ["干咳", "不断加重的呼吸困难"],
+      "治疗": ["吸氧", "通气", "糖皮质激素", "抗感染"],
+      "预后": "肺纤维化是疾病的终末期，预后差",
+      "治疗方法":"当肺部病变发展到纤维化阶段时，通常已经进入疾病晚期。虽然现有治疗手段无法完全逆转病情，但通过针对原发病的治疗和综合管理， 能够一定.程度上延缓纤维化进展 速度。"
+    },
+    {
+      "名称": "心脏肥大",
+      "定义": "由心脏负荷过重引起",
+      "表现": ["通常表现为心肌细胞体积增大"],
+      "特征": "心脏的一种适应性代偿状态",
+      "分类": ["可分为病理性心肌肥大与生理性心肌肥大"],
+      "治疗方法":"对引起心肌肥大的疾病需要从个人生活方式，药物治疗与手术层面进行综合治疗。"
+    },
+    {
+      "名称": "胸膜增厚",
+      "原因": "常由渗出性胸膜炎或胸膜积液引发",
+      "定义": "纤维蛋白沉着和肉芽组织增生导致胸膜增厚",
+      "表现": ["多数患者无明显症状", "严重的影响呼吸功能"],
+      "治疗": "严重的胸膜肥厚可能影响呼吸功能，则应手术治疗",
+      "治疗方法":"胸膜增厚通常无需特殊治疗，严重的胸膜肥厚可能影响呼吸功能，则应手术治疗。胸膜增厚往往继发于原有胸膜疾病或胸腔积液，首先要明确病因，积极治疗原发疾病。"
+    },
+    {
+      "名称": "疝气",
+      "定义": "体内器官或器官的一部分离开正常解剖位置",
+      "症状": ["内脏器官从肌肉或组织的薄弱处'钻'出来，在皮肤下形成鼓包"],
+      "治疗": "不同部位疝的治疗方法不同",
+      "预后": "脑疝死亡率高，其他疝一般情况预后良好",
+      "治疗方法":"不同部位疝治疗原则不同。腹外疝若不及时处理，疝块可逐渐增大，最终影响日常工作；若疝发生嵌顿或绞窄会威胁生命。因此，除婴儿脐疝、腹股沟疝可能自愈，及年老体弱且症状不明显的患者之外，腹外疝一般均需要及时入院进行手术治疗。脑疝是临床危重症，治疗目的为力争挽救患者的生命，可内科治疗减轻脑水肿，必要时应紧急手术清除血肿或切除部分颅骨，以降低颅内压。食管裂孔疝在没有症状或症状很轻时，通常不需要治疗。若因膈肌损伤引起的膈疝，则需要尽早进行手术，以免发生呼吸循环障碍及疝内容物嵌顿。"
+    },
+    {
+      "名称": "结节",
+      "定义": "肺部出现的异常组织团块，可能为良性或恶性。",
+      "症状": ["可能无症状", "或表现为咳嗽", "胸痛", "呼吸困难"],
+      "治疗": "根据性质选择观察、手术、放疗、化疗等",
+      "预后": "取决于肿块/结节性质和治疗及时性，恶性者预后较差",
+      "治疗方法":"良性肿块/结节通常定期随访（如每6-12个月复查影像），若增长迅速或有症状则手术切除；恶性病变需手术切除联合放化疗/靶向治疗，微小肺结节可能需穿刺活检明确性质后制定方案。"
+    },
+    {
+      "名称": "肺不张",
+      "定义": "各种原因导致的肺组织塌陷，影响气体交换",
+      "症状": ["以呼吸困难为主要临床表现"],
+      "治疗": "去除病因是治疗肺不张的有效手段。",
+      "预后": "肺不张的预后与病因息息相关",
+      "治疗方法":"应消除造成急性肺不张（包括手术后急性大范围肺不张）的病因。如怀疑为机械性阻塞，咳嗽、吸引或24小时积极的呼吸和物理治疗措施可缓解病情。如果确定为支气管阻塞，应针对阻塞和通常伴有的感染进行处理。可借支气管镜清除黏液栓或稠厚分泌物，使不张的肺得以重新充气。胸部理疗和其他措施仍需继续进行。如疑为异物吸入，应立即作支气管镜检查。确诊为肺不张的病人应采取使患侧处于最高位的体位，以有利引流；进行适当物理治疗；以及鼓励咳嗽、病人翻身和作深呼吸。经常（每1～2小时）指导使用间歇性正压呼吸（IPPB）或肺量计以保证深呼吸。根据药敏检测给予抗生素治疗。反复严重呼吸道感染或反复咯血者应考虑对不张的肺叶或肺段作手术切除。肿瘤引起的肺不张应根据细胞类型和病变范围，病人的全身情况以及肺功能，综合考虑采用手术，放射治疗或化学治疗以缓解阻塞。"
+    },
+    {
+      "名称": "浸润",
+      "定义": "病原体或异物致肺组织炎性细胞浸润、渗出。",
+      "症状": ["发热", "咳嗽", "咳痰", "胸痛", "呼吸急促"],
+      "治疗": ["抗感染", "祛痰", "平喘", "重症需氧疗或激素"],
+      "预后": "感染性多可愈，免疫性或进展型预后差",
+      "治疗方法":"抗感染治疗:细菌感染用抗生素，结核需规范抗结核治疗(如异烟肼+利福平)，真菌感染用抗真菌药物。 \n抗炎治疗:自身免疫性疾病使用糖皮质激素或免疫抑制剂(如甲氨蝶呤)。 \n肿瘤治疗:手术切除、化疗、放疗或靶向治疗，根据病理类型制定方案。 \n支持治疗:吸氧、营养支持，肺水肿需利尿剂或强心药物。"
+    },
+    {
+  "名称": "肿块/结节",
+  "定义": "肺部出现的异常组织团块，可能为良性或恶性。肿块是指直径≥3厘米的异常组织团块，通常在影像检查（如CT、超声）中发现，可能是实性、囊性或混合性病变；结节则是直径<3厘米的圆形或类圆形病灶。",
+  "症状": "多数肿块/结节早期无症状，常在体检时发现；若增大或压迫周围组织，可能引起咳嗽、胸痛、呼吸困难（肺部病变）或颈部肿胀（甲状腺结节）；恶性病变可能伴随体重下降、咯血或持续疼痛。",
+  "治疗": "良性肿块/结节通常定期随访（如每6-12个月复查影像），若增长迅速或有症状则手术切除；恶性病变需手术切除联合放化疗/靶向治疗，微小肺结节可能需穿刺活检明确性质后制定方案。",
+  "预后": "取决于肿块/结节性质和治疗及时性，良性病变预后良好，恶性者预后较差，早期5年生存率可达60-80%。",
+  "治疗方法": "对于良性肿块/结节，主要采取观察等待策略，包括定期影像学随访；对于增长迅速或引发症状的良性肿块/结节，以及所有恶性肿块/结节，则需要采取更加积极的治疗方法，如手术切除、放射治疗、化学治疗或者靶向药物治疗等。"
+}
+  ];
+
+</script>
+</body>
+</html>

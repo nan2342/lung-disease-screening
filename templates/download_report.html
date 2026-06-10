@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成PDF报告 - 胸部多疾病智能筛查系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        .pdf-container {
+            width: 210mm;
+            padding: 20mm;
+            margin: 20px auto;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .pdf-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #1e88e5;
+        }
+        
+        .pdf-header h2 {
+            color: #1e88e5;
+            font-size: 24px;
+            margin: 0;
+        }
+        
+        .pdf-header p {
+            color: #555;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+        
+        .report-info {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .patient-info, .report-meta {
+            flex: 1;
+        }
+        
+        .report-meta {
+            text-align: right;
+        }
+        
+        .report-section {
+            margin-bottom: 20px;
+        }
+        
+        .report-section h3 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .original-image-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .original-image-container img {
+            max-width: 100%;
+            max-height: 200px;
+            border: 1px solid #ddd;
+        }
+        
+        .disease-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .disease-name {
+            flex: 1;
+        }
+        
+        .probability-container {
+            flex: 2;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 15px;
+        }
+        
+        .probability-bar {
+            height: 100%;
+            background-color: #1e88e5;
+        }
+        
+        .high-risk .probability-bar {
+            background-color: #d32f2f;
+        }
+        
+        .medium-risk .probability-bar {
+            background-color: #f57c00;
+        }
+        
+        .low-risk .probability-bar {
+            background-color: #388e3c;
+        }
+        
+        .probability-value {
+            width: 50px;
+            text-align: right;
+        }
+        
+        .ai-notes {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 3px solid #1e88e5;
+        }
+        
+        .disclaimer {
+            font-style: italic;
+            color: #777;
+            font-size: 12px;
+            margin-top: 30px;
+            border-top: 1px dashed #ddd;
+            padding-top: 10px;
+        }
+        
+        .pdf-watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 60px;
+            color: rgba(200, 200, 200, 0.2);
+            font-weight: bold;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        
+        .action-buttons {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        #generatePdfBtn {
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            padding: 12px 30px;
+        }
+        
+        .loading-indicator {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+         /* 导航栏微调 */
+        nav {
+    display: flex;
+    justify-content: center; /* 修改为居中 */
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+        nav ul li {
+            margin: 0 12px;
+        }
+
+        nav ul li a {
+            padding: 10px 15px;
+            transition: all 0.3s ease;
+        }
+
+    </style>
+</head>
+<body>
+
+    <main>
+        <div class="action-buttons">
+            <button id="generatePdfBtn" class="btn">生成并下载PDF报告</button>
+            <a href="/results" class="btn">返回分析结果</a>
+        </div>
+
+        <div class="loading-indicator" id="loadingIndicator">
+            <div class="spinner"></div>
+            <p>正在生成PDF，请稍候...</p>
+        </div>
+
+        <div class="pdf-container" id="pdfContent">
+            <div class="pdf-watermark">胸部多疾病智能筛查系统</div>
+            
+            <div class="pdf-header">
+                <h2>胸部X光疾病智能筛查报告</h2>
+                <p>基于高分辨率特征融合网络的多疾病智能分析</p>
+            </div>
+            
+            <div class="report-info">
+                <div class="patient-info">
+                    <p><strong>报告ID:</strong> <span id="reportId">--</span></p>
+                    <p><strong>报告类型:</strong> 胸部X光智能筛查</p>
+                </div>
+                <div class="report-meta">
+                    <p><strong>分析时间:</strong> <span id="analysisTime">--</span></p>
+                    <p><strong>生成日期:</strong> <span id="generateTime">--</span></p>
+                </div>
+            </div>
+            
+            <div class="report-section">
+                <h3>原始影像</h3>
+                <div class="original-image-container">
+                    <img id="originalImage" src="" alt="原始影像">
+                    <p id="imageInfo">影像类型: -- | 影像尺寸: --</p>
+                </div>
+            </div>
+            
+            <div class="report-section">
+                <h3>疾病筛查结果</h3>
+                <div id="diseaseProbabilities">
+                    <!-- 疾病概率内容将动态填充 -->
+                </div>
+            </div>
+            
+            <div class="report-section">
+                <h3>AI辅助诊断说明</h3>
+                <div class="ai-notes" id="aiNotes">
+                    <!-- AI诊断说明将动态填充 -->
+                </div>
+            </div>
+            
+            <div class="disclaimer">
+                <p><strong>免责声明:</strong> 本报告由AI智能系统自动生成，仅供医学参考，不构成正式医疗诊断意见。任何诊断和治疗决策应咨询专业医疗人员。</p>
+                <p>© 2025 胸部多疾病智能筛查系统 - 版权所有</p>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 胸部多疾病智能筛查系统. 版权所有.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 从本地存储获取报告数据
+            const pdfData = JSON.parse(localStorage.getItem('pdfData') || '{}');
+            
+            // 填充报告内容
+            document.getElementById('reportId').textContent = pdfData.analysisId || 'REP-' + Math.random().toString(36).substr(2, 9);
+            document.getElementById('analysisTime').textContent = pdfData.analysisTime || new Date().toLocaleString();
+            document.getElementById('generateTime').textContent = new Date().toLocaleString();
+            
+            // 填充原始影像
+            if (pdfData.originalImage) {
+                document.getElementById('originalImage').src = pdfData.originalImage;
+            }
+            
+            // 填充影像信息
+            if (pdfData.imageInfo) {
+                document.getElementById('imageInfo').textContent = 
+                    `影像类型: ${pdfData.imageInfo.type || '--'} | 影像尺寸: ${pdfData.imageInfo.size || '--'}`;
+            }
+            
+            // 填充疾病概率
+            const diseaseProbabilitiesContainer = document.getElementById('diseaseProbabilities');
+            if (pdfData.diseases && pdfData.diseases.length > 0) {
+                diseaseProbabilitiesContainer.innerHTML = '';
+                
+                pdfData.diseases.forEach(disease => {
+                    let riskClass = 'low-risk';
+                    if (disease.probability > 70) riskClass = 'high-risk';
+                    else if (disease.probability > 30) riskClass = 'medium-risk';
+                    
+                    const diseaseItem = document.createElement('div');
+                    diseaseItem.className = `disease-item ${riskClass}`;
+                    diseaseItem.innerHTML = `
+                        <div class="disease-name">${disease.name}</div>
+                        <div class="probability-container">
+                            <div class="probability-bar" style="width: ${disease.probability}%"></div>
+                        </div>
+                        <div class="probability-value">${disease.probability}%</div>
+                    `;
+                    
+                    diseaseProbabilitiesContainer.appendChild(diseaseItem);
+                });
+            } else {
+                // 添加默认疾病数据用于演示
+                diseaseProbabilitiesContainer.innerHTML = `
+                    <div class="disease-item high-risk">
+                        <div class="disease-name">肺炎(Pneumonia)</div>
+                        <div class="probability-container">
+                            <div class="probability-bar" style="width: 85%"></div>
+                        </div>
+                        <div class="probability-value">85%</div>
+                    </div>
+                    <div class="disease-item medium-risk">
+                        <div class="disease-name">胸腔积液(Effusion)</div>
+                        <div class="probability-container">
+                            <div class="probability-bar" style="width: 42%"></div>
+                        </div>
+                        <div class="probability-value">42%</div>
+                    </div>
+                    <div class="disease-item low-risk">
+                        <div class="disease-name">结节(Nodule)</div>
+                        <div class="probability-container">
+                            <div class="probability-bar" style="width: 15%"></div>
+                        </div>
+                        <div class="probability-value">15%</div>
+                    </div>
+                `;
+            }
+            
+            // 填充AI诊断说明
+            document.getElementById('aiNotes').textContent = pdfData.aiNotes || 
+                '系统检测到高概率的肺炎迹象，肺部下方出现明显的模糊区域。同时观察到中等程度的胸腔积液。建议进一步临床检查确认诊断。';
+            
+            // 生成PDF按钮事件
+            const generatePdfBtn = document.getElementById('generatePdfBtn');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            
+            generatePdfBtn.addEventListener('click', function() {
+                // 显示加载指示器
+                loadingIndicator.style.display = 'block';
+                generatePdfBtn.disabled = true;
+                
+                // 使用setTimeout给UI线程一点时间来显示加载指示器
+                setTimeout(function() {
+                    generatePDF();
+                }, 100);
+            });
+            
+            // 生成PDF的函数
+            function generatePDF() {
+                const { jsPDF } = window.jspdf;
+                const pdfContent = document.getElementById('pdfContent');
+                
+                // 使用html2canvas捕获PDF内容
+                html2canvas(pdfContent, {
+                    scale: 2, // 提高清晰度
+                    useCORS: true, // 允许跨域图片
+                    logging: false
+                }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/jpeg', 0.8);
+                    
+                    // 创建PDF
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = pdf.internal.pageSize.getHeight();
+                    
+                    const canvasWidth = canvas.width;
+                    const canvasHeight = canvas.height;
+                    
+                    // 计算适当的缩放比例
+                    const ratio = Math.min(pdfWidth / canvasWidth, pdfHeight / canvasHeight);
+                    const scaledWidth = canvasWidth * ratio * 0.95; // 保留一些边距
+                    const scaledHeight = canvasHeight * ratio * 0.95;
+                    
+                    // 居中放置
+                    const x = (pdfWidth - scaledWidth) / 2;
+                    const y = (pdfHeight - scaledHeight) / 2;
+                    
+                    // 添加图像到PDF
+                    pdf.addImage(imgData, 'JPEG', x, y, scaledWidth, scaledHeight);
+                    
+                    // 保存PDF
+                    const reportId = document.getElementById('reportId').textContent;
+                    pdf.save(`胸部疾病筛查报告_${reportId}.pdf`);
+                    
+                    // 隐藏加载指示器
+                    loadingIndicator.style.display = 'none';
+                    generatePdfBtn.disabled = false;
+                }).catch(error => {
+                    console.error('PDF生成错误:', error);
+                    alert('生成PDF时出错，请重试');
+                    loadingIndicator.style.display = 'none';
+                    generatePdfBtn.disabled = false;
+                });
+            }
+        });
+    </script>
+</body>
+</html> 
